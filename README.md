@@ -87,3 +87,17 @@ volumes:
 Point Scraper to sub-directory file_sd of <dir_name>
 Create sub-directory file_sd in <dir_name> 
 In file_sd create config files for each scraper job -> this and the '--web.enable-lifecycle' in docker-compose.yml make it so the docker container doesn't need to be restarted when new servers are added.
+
+```
+monitor/
+├── docker-compose.yml
+└── prometheus/
+    ├── file_sd/
+    │   ├── cpu_temp_exporter.yml
+    │   ├── filebeat.yml
+    │   ├── node_exporter.yml
+    │   ├── proxmox.yml
+    │   ├── smartctl_exporter.yml
+    │   └── smartmon.yml
+    └── prometheus.yml
+```

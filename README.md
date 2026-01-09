@@ -129,10 +129,10 @@ monitor/
 ├── docker-compose.yml
 └── prometheus/
     ├── file_sd/
-    │   ├── cpu_temp_exporter.yml
+    │   ├── <example_exporter>.yml
     │   ├── filebeat.yml
     │   ├── node_exporter.yml
-    │   ├── proxmox.yml
+    │   ├── <example_exporter>.yml
     │   ├── smartctl_exporter.yml
     │   └── smartmon.yml
     └── prometheus.yml

@@ -82,3 +82,8 @@ volumes:
   # Docker-managed volume for persistent storage
   prometheus-data:
 ```
+
+## 4. Create prometheus.yml
+Point Scraper to sub-directory file_sd of <dir_name>
+Create sub-directory file_sd in <dir_name> 
+In file_sd create config files for each scraper job -> this and the '--web.enable-lifecycle' in docker-compose.yml make it so the docker container doesn't need to be restarted when new servers are added.

@@ -114,7 +114,15 @@ nano prom_nodes.yml
 ```
  
 - In file_sd create config files for each scraper job -> this and the '--web.enable-lifecycle' in docker-compose.yml make it so the docker container doesn't need to be restarted when new servers are added.
-
+```
+- targets:
+    - <node_ip>:9100
+  labels:
+    instance: <display_name>
+    hostname: <node_name>
+    role: <type_of_node>
+    env: <category_of_node>
+    exporter: node
 ```
 monitor/
 ├── docker-compose.yml

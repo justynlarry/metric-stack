@@ -43,4 +43,4 @@ sudo apt install docker-compose-plugin
 # Verify:
 docker compose version
 ```
-3. Set up docker-compose.yaml for Prometheus
+2. Set up docker-compose.yaml for Prometheus

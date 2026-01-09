@@ -84,9 +84,9 @@ volumes:
 ```
 
 ## 4. Create prometheus.yml
-Point Scraper to sub-directory file_sd of <dir_name>
-Create sub-directory file_sd in <dir_name> 
-In file_sd create config files for each scraper job -> this and the '--web.enable-lifecycle' in docker-compose.yml make it so the docker container doesn't need to be restarted when new servers are added.
+- Point Scraper to sub-directory file_sd of <dir_name>
+- Create sub-directory file_sd in <dir_name> 
+- In file_sd create config files for each scraper job -> this and the '--web.enable-lifecycle' in docker-compose.yml make it so the docker container doesn't need to be restarted when new servers are added.
 
 ```
 monitor/
@@ -101,3 +101,14 @@ monitor/
     │   └── smartmon.yml
     └── prometheus.yml
 ```
+- download prometheus node_exporter on target machine:
+```  wget https://github.com/prometheus/node_exporter/releases/download/v1.10.2/node_exporter-1.10.2.linux-amd64.tar.gz ```
+- Extract tarball:
+``` tar xvfz nod_exporter-*.*-amd64.tar.gz && cd node_exporter-*.*-amd64 ```
+
+- start prometheus node_exporeter on target mahcine:
+``` ./node_exporter ```
+- verify target machine is producing metrics:
+``` curl http://localhost:9100/metrics ```
+
+

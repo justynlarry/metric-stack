@@ -83,9 +83,36 @@ volumes:
   prometheus-data:
 ```
 
-## 4. Create prometheus.yml
-- Point Scraper to sub-directory file_sd of <dir_name>
-- Create sub-directory file_sd in <dir_name> 
+## 4. Create prometheus.yml and Point Scraper to sub-directory file_sd of <dir_name>
+```
+mkdir prometheus && cd prometheus
+nano prometheus.yml
+```
+```prometheus.yml
+# Global settings that apply to all scrape jobs
+global:
+  # Set interval 
+  scrape_interval: 5s
+
+# List all targets/services that Prometheus will monitor
+scrape_configs:
+  # Lable Scrape Job
+  - job_name: 'prometheus'
+    # File-Based service discovery (targets defined in ./file_sd/
+    file_sd_configs:
+      - files:
+      # Path to file with prometheus node targets
+      - /etc/prometheus/file_sd/prom_nodes.yml
+        # How often to re-read the file for changes (allows for dynamic updates without restart)
+        refresh_interval: 30s
+```
+
+- Create sub-directory file_sd/ in <dir_name> and make prom_nodes.yml
+```
+mkdir file_sd/ && cd file_sd/
+nano prom_nodes.yml
+```
+ 
 - In file_sd create config files for each scraper job -> this and the '--web.enable-lifecycle' in docker-compose.yml make it so the docker container doesn't need to be restarted when new servers are added.
 
 ```

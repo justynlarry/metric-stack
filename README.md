@@ -44,3 +44,29 @@ sudo apt install docker-compose-plugin
 docker compose version
 ```
 2. Set up docker-compose.yaml for Prometheus
+```
+# Defines all Containers to be run
+services:
+  # Name of the service
+  prometheus:
+    # Download the official prometheus image from DockerHub
+    image: prom/prometheus
+    # Set container's name to 'prometheus' instead of auto-generated name
+    container_name: prometheus
+    # Override default command with custom flags
+    command:
+      # Tell prometheus where to find it's config file
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      # Enable API Endpoints to reload config without restarting
+      - "--web.enable-lifecycle"
+    # Mounts files/directories into the docker container
+    volumes:
+      - ".prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "prometheus-data:/prometheus"
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+volumes:
+  # Docker-managed volume for persistent storage
+  prometheus-data:
+```

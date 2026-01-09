@@ -124,6 +124,7 @@ nano prom_nodes.yml
     env: <category_of_node>
     exporter: node
 ```
+```
 monitor/
 ├── docker-compose.yml
 └── prometheus/

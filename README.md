@@ -55,7 +55,7 @@ mkdir <dir_name> && cd <dir_name>
 ## 3. Set up docker-compose.yaml for Prometheus
 ```nano docker-compose.yaml```
 
-
+### Docker Compose .yaml file:
 ```
 # Defines all Containers to be run
 services:

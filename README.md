@@ -178,4 +178,62 @@ volumes:
 - set up prometheus endpoint
 - create graphs
 
+## PHASE 2: Promtail and Loki
 
+
+
+
+
+
+
+
+
+
+
+<This may be a no-go out of the gate, promtail-Loki may be a better, more lightweight starter option>
+# Phase 2:  Filebeat & ElasticSearch
+## 1.  Install ElasticSearch Client as docker container
+- create the .env file for passwords (exclude from GitHub if applicable)
+```cd <dir_name> && nano .env```
+```
+# Project namespace (defaults to the current folder name if not set)
+COMPOSE_PROJECT_NAME=<project-name>
+
+# Password for the 'elastic user (minimum 6 characters)
+ELASTIC_PASSWORD=<password>
+
+# Version of Elastic Products
+STACK_VERSION=8.7.1
+
+# Set the Cluster Name
+CLUSTER_NAME=<cluster_name>
+
+LICENSE=basic
+
+# Port to expose Elasticsearch HTTP API to the host
+ES_PORT=5601
+
+# Increase or decrease based on teh available host memory (in bytes)
+ES_MEM_LIMIT=1073741824
+KB_MEM_LIMIT=1073741824
+LS_MEM_LIMIT=1073741824
+
+```
+
+
+- edit docker-compose.yml:
+```cd <dir_name>```
+```nano docker-compose.yml```
+```
+  elasticsearch:
+    image: elasticsearch/elasticsearch
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+    volumens:
+      - elasticsearch:
+
+
+- Install Filebeat on Client
+```curl -L -o https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-9.2.3-adm64.deb```
+```sudo dpkg -i filebeat-9.2.3-amd64.deb```

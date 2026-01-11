@@ -179,7 +179,11 @@ volumes:
 - create graphs
 
 ## PHASE 2: Promtail and Loki
-
+- install Loki with Docker Compose
+- create a subdirectory for Loki
+```mkdir loki && cd loki```
+```wget https://raw.githubusercontent.com/grafana/loki/v3.4.1/productions/docker-compose.yml -O docker-compose.yaml```
+```docker-compose -f docker-compose.yaml up```
 
 
 

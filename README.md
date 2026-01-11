@@ -132,6 +132,10 @@ nano prom_nodes.yml
 ```
 monitor/
 ├── docker-compose.yml
+├── loki/
+│   └── local-config.yaml
+├── promtail/
+│   └── config.yml
 └── prometheus/
     ├── file_sd/
     │   ├── <example_exporter>.yml
@@ -141,6 +145,7 @@ monitor/
     │   ├── smartctl_exporter.yml
     │   └── smartmon.yml
     └── prometheus.yml
+
 ```
 - download prometheus node_exporter on target machine:
 ```  wget https://github.com/prometheus/node_exporter/releases/download/v1.10.2/node_exporter-1.10.2.linux-amd64.tar.gz ```
@@ -179,11 +184,19 @@ volumes:
 - create graphs
 
 ## PHASE 2: Promtail and Loki
-- install Loki with Docker Compose
-- create a subdirectory for Loki
-```mkdir loki && cd loki```
-```wget https://raw.githubusercontent.com/grafana/loki/v3.4.1/productions/docker-compose.yml -O docker-compose.yaml```
-```docker-compose -f docker-compose.yaml up```
+- Add Loki and Promtail to the docker-compose.yml
+
+```cd <dir_name> && nano docker-copmose.yml```
+```
+
+```
+- Create loki and promtail sub-directories
+``` mkdir loki promtail```
+- create local-config.yaml
+```cd loki && nano local-config.yaml```
+
+- create promtail config.yaml
+```cd promtail && nano config.yaml```
 
 
 
@@ -193,9 +206,8 @@ volumes:
 
 
 
-
-<This may be a no-go out of the gate, promtail-Loki may be a better, more lightweight starter option>
-# Phase 2:  Filebeat & ElasticSearch
+<This may be a bit heavy out of the gate, promtail-Loki may be a better, more lightweight starter option>
+# Phase X:  Filebeat & ElasticSearch
 ## 1.  Install ElasticSearch Client as docker container
 - create the .env file for passwords (exclude from GitHub if applicable)
 ```cd <dir_name> && nano .env```

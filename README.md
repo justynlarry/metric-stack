@@ -124,6 +124,11 @@ nano prom_nodes.yml
     env: <category_of_node>
     exporter: node
 ```
+
+- Create the docker container:
+```cd <dir_name> ```
+```docker-compose up -d --build```
+### Tree structure
 ```
 monitor/
 ├── docker-compose.yml
@@ -146,5 +151,31 @@ monitor/
 ``` ./node_exporter ```
 - verify target machine is producing metrics:
 ``` curl http://localhost:9100/metrics ```
+
+## 5. Add Grafana to docker-compose.yml:
+```nano docker-compose.yml```
+```
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    restart: unless-stopped
+
+volumes:
+  grafana-storage:
+```
+- Tear down the docker container
+```docker-compose down```
+- Rebuild the container for Prometheus and Grafana:
+```docker-compose up -d --build```
+
+## 6.  Log in to Grafana in web browser:
+```http:://<host_IP_Address>:3000```
+- create username and password
+- set up prometheus endpoint
+- create graphs
 
 

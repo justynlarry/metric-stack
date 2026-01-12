@@ -370,6 +370,56 @@ limits_config:
     networks:
       - web
     restart: unless-stopped
+```
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Docker Network                            │
+│                                                                   │
+│  ┌──────────┐         ┌──────────┐         ┌──────────┐        │
+│  │  Nginx   │────────▶│ Grafana  │◀────────│  Users   │        │
+│  │  :80     │  Proxy  │  :3000   │   Web   │ (Browser)│        │
+│  │  :443    │         └──────────┘         └──────────┘        │
+│  └──────────┘              │    │                                │
+│       │                    │    │                                │
+│       │ Logs               │    │                                │
+│       │                    │    └──────────────┐                │
+│       ▼                    │                   │                │
+│  ┌──────────┐              │ Queries           │ Queries        │
+│  │ Promtail │──Push logs──▶│                   │                │
+│  │  :9080   │              │                   │                │
+│  └──────────┘              ▼                   ▼                │
+│       │                ┌──────────┐       ┌────────────┐        │
+│       │                │   Loki   │       │ Prometheus │        │
+│       │                │  :3100   │       │   :9090    │        │
+│       │                └──────────┘       └────────────┘        │
+│       │                    │                   ▲                │
+│       │                    │ Stores            │ Scrapes        │
+│       │                    ▼                   │                │
+│       │                ┌──────────┐            │                │
+│       │                │  MinIO   │            │                │
+│       │                │  :9000   │            │                │
+│       │                └──────────┘            │                │
+│       │                                        │                │
+│       └──Reads logs from──────────────────────┘                │
+│          (nginx, apps,                                           │
+│           prometheus, loki)                                      │
+│                                                                   │
+└─────────────────────────────────────────────────────────────────┘
+
+DATA FLOW:
+1. Nginx → generates access/error logs
+2. Promtail → reads those logs + scrapes Prometheus/Loki metrics
+3. Promtail → pushes logs to Loki
+4. Loki → stores logs in MinIO (or local storage)
+5. Prometheus → scrapes metrics from all services (including itself)
+6. Grafana → queries Loki for logs, queries Prometheus for metrics
+7. Nginx → reverse proxies user requests to Grafana
+8. Users → access Grafana via Nginx (SSL termination)
+```
+
+
+
 
 
 **Key settings for MinIO:**
@@ -451,8 +501,65 @@ LS_MEM_LIMIT=1073741824
       - "9200:9200"
     volumens:
       - elasticsearch:
-
+```
 
 - Install Filebeat on Client
 ```curl -L -o https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-9.2.3-adm64.deb```
 ```sudo dpkg -i filebeat-9.2.3-amd64.deb```
+
+# Proposed Final Directory Structure:
+```
+/home/stack-user/monitor/
+├── docker-compose.yml
+├── .env
+│
+├── nginx/
+│   ├── nginx.conf
+│   ├── conf.d/
+│   │   ├── grafana.conf
+│   │   └── default.conf
+│   ├── ssl/
+│   │   ├── cert.pem
+│   │   └── key.pem
+│   └── html/
+│       └── index.html
+│
+├── grafana/
+│   ├── grafana.ini
+│   ├── provisioning/
+│   │   ├── datasources/
+│   │   │   ├── loki.yml
+│   │   │   └── prometheus.yml
+│   │   └── dashboards/
+│   │       ├── dashboard.yml
+│   │       └── dashboards/
+│   │           ├── nginx-dashboard.json
+│   │           └── system-dashboard.json
+│   └── data/              # Created by Docker volume
+│
+├── loki/
+│   ├── config.yml
+│   └── data/              # Created by Docker volume
+│
+├── prometheus/
+│   ├── prometheus.yml
+│   ├── alerts/
+│   │   └── rules.yml
+│   ├── file_sd/
+│   │   ├── services.yml
+│   │   └── containers.yml
+│   └── data/              # Created by Docker volume
+│
+├── promtail/
+│   ├── config.yml
+│   ├── file_sd/
+│   │   ├── nginx.yml
+│   │   ├── loki.yml
+│   │   ├── prometheus.yml
+│   │   └── grafana.yml
+│   └── positions/         # Created by Docker volume
+│
+└── minio/                 # Optional - for S3-compatible storage
+    ├── config/
+    └── data/              # Created by Docker volume
+```

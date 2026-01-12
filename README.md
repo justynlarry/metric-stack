@@ -66,6 +66,28 @@ mkdir -p nginx/conf.d
 mkdir -p minio/data
 ```
 
+### 3. Create .env file
+
+bash
+```
+# Grafana Credentials
+GRAFANA_ADMIN_USER=admin
+GRAFANA_ADMIN_PASSWORD=<grafana_password>
+
+# MinIO Credientials
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=<minio_password>
+
+# Loki MinIO Access (should match MinIO Credentials)
+LOKI_S3_ACCESS_KEY=minioadmin
+LOKI_S3_SECRET_KEY=<minio_password>
+
+# Prometheus Retention (how many days data is kept)
+PROMETHEUS_RETENTION=30d
+
+
+```
+
 ## Final directory structure:
 ```
 /home/stack-user/monitor/
@@ -107,7 +129,7 @@ Create: /home/stack-user/monitor/docker-compose.yml
 
 yaml
 ```
-# version: '3.8'
+version: '3.8'
 
 services:
   # Prometheus - Metrics collection and alerting
@@ -118,7 +140,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
-      - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/file_sd:/etc/prometheus/file_sd:ro
@@ -134,9 +156,11 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_ROOT_URL=http://localhost:3000
+      - GF_INSTALL_PLUGINS=
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - grafana-data:/var/lib/grafana
@@ -149,11 +173,36 @@ services:
       - prometheus
       - loki
 
+  # MinIO - S3-compatible object storage for Loki
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - monitoring
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
   # Loki - Log aggregation system
   loki:
     image: grafana/loki:latest
     container_name: loki
     command: -config.file=/etc/loki/local-config.yaml
+    environment:
+      - LOKI_S3_ACCESS_KEY=${LOKI_S3_ACCESS_KEY:-minioadmin}
+      - LOKI_S3_SECRET_KEY=${LOKI_S3_SECRET_KEY:-minioadmin}
     volumes:
       - ./loki/config.yml:/etc/loki/local-config.yaml:ro
       - loki-data:/loki
@@ -163,7 +212,8 @@ services:
       - monitoring
     restart: unless-stopped
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
 
   # Promtail - Log collector and shipper
   promtail:
@@ -192,6 +242,7 @@ services:
     container_name: nginx
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - nginx-logs:/var/log/nginx
     ports:
       - "80:80"
@@ -202,35 +253,19 @@ services:
     depends_on:
       - grafana
 
-  # MinIO - S3-compatible object storage for Loki
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    command: server /data --console-address ":9001"
-    environment:
-      - MINIO_ROOT_USER=minioadmin
-      - MINIO_ROOT_PASSWORD=minioadmin123
-    volumes:
-      - minio-data:/data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    networks:
-      - monitoring
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 30s
-      timeout: 20s
-      retries: 3
-
 volumes:
   prometheus-data:
+    driver: local
   grafana-data:
+    driver: local
   loki-data:
+    driver: local
   promtail-positions:
+    driver: local
   nginx-logs:
+    driver: local
   minio-data:
+    driver: local
 
 networks:
   monitoring:
@@ -331,12 +366,13 @@ common:
     s3:
       endpoint: minio:9000
       bucketnames: loki-data
-      access_key_id: minioadmin
-      secret_access_key: minioadmin123
+      # These come from environment variables passed by docker-compose
+      access_key_id: ${LOKI_S3_ACCESS_KEY}
+      secret_access_key: ${LOKI_S3_SECRET_KEY}
       s3forcepathstyle: true
       insecure: true  # Set to false if using HTTPS
-  # Store 3 replicas of data
-  replication_factor: 1  # Set to 3 when running multiple Loki instances
+  # Store 1 replica (increase when running multiple Loki instances)
+  replication_factor: 1
   # Configuration for Loki's hash ring
   ring:
     kvstore:
@@ -373,8 +409,11 @@ limits_config:
   retention_period: 30d
   # Maximum number of active streams per tenant
   max_streams_per_user: 10000
-  # Maximum line size
+  # Maximum line size (256KB)
   max_line_size: 256000
+  # Reject old samples
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
 
 # Compactor - cleans up old data
 compactor:
@@ -465,6 +504,37 @@ server {
         proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
     }
+}
+```
+#### Create: /home/stack-user/monitor/nginx/nginx.conf
+
+nginx
+```
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    keepalive_timeout  65;
+
+    # Include all server configs
+    include /etc/nginx/conf.d/*.conf;
 }
 ```
 

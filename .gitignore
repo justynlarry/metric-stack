@@ -1,0 +1,21 @@
+# Environment variables
+.env
+
+# Docker Volumes Data
+**/data/
+
+# Grafana Data
+grafana/data
+
+# Prometheus Data
+prometheus/data
+
+# Loki Data
+loki/data
+
+# Promtail positions
+promtail/positions/
+
+# Logs
+*.log
+

@@ -16,6 +16,19 @@ loki/data
 # Promtail positions
 promtail/positions/
 
+# MinIO Data
+minio/data/
+
 # Logs
 *.log
+nginx/logs
+
+# Temporary Files
+*.tmp
+*.swp
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
 

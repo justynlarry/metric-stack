@@ -342,19 +342,19 @@ services:
     depends_on:
       - grafana
 
-    # Blackbox Exporter - Website Monitoring
-    blackbox:
-      image: prom/blackbox-exporter:latest
-      container_name: blackbox
-      volumes:
-        - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
-      ports:
-        - "9115:9115"
-      command:
-        - "--config.file=/etc/blackbox_exporter/config.yml"
-      networks:
-        - monitoring
-      restart: unless-stopped
+  # Blackbox Exporter - Website Monitoring
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    container_name: blackbox
+    volumes:
+      - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    ports:
+      - "9115:9115"
+    command:
+      - "--config.file=/etc/blackbox_exporter/config.yml"
+    networks:
+      - monitoring
+    restart: unless-stopped
 
 volumes:
   prometheus-data:
@@ -368,8 +368,6 @@ volumes:
   nginx-logs:
     driver: local
   minio-data:
-    driver: local
-  blackbox-data:
     driver: local
 
 networks:
@@ -388,9 +386,9 @@ global:
   scrape_interval: 15s
   # How often to evaluate alerting rules
   evaluation_interval: 15s
-  # Load alerting and recording rules
-  rule_files:
-    - "/etc/prometheus/rules/*.yml"
+# Load alerting and recording rules
+rule_files:
+  - "/etc/prometheus/rules/*.yml"
 
 # List all targets/services that Prometheus will monitor
 scrape_configs:
@@ -427,21 +425,21 @@ scrape_configs:
         # How often to re-read the file for changes
         refresh_interval: 30s
 
-    # Blackbox - Monitor external websites
-    - job_name: 'blackbox'
-      metrics_path: /probe
-      params:
-        module: [http_2xx]
-      file_sd_configs:
-        - files:
-           - /etc/prometheus/file_sd/blackbox_addr.yml
-      relabel_configs:
-        - source_lables: [__address__]
-          target_label: __param_target
-        - source_labels: [__param_target]
-          target_label: instance
-        - target_lable: __address__
-          replacement: blackbox:9115
+  # Blackbox - Monitor external websites
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    file_sd_configs:
+      - files:
+         - /etc/prometheus/file_sd/blackbox_addr.yml
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
 
 ```
 Create: /home/stack-user/monitor/prometheus/file_sd/prom_nodes.yml
@@ -474,12 +472,11 @@ Create: /home/stack-user/monitor/prometheus/file_sd/blackbox_addr.yml
 yaml
 ```
 - targets:
-  - www.jlarrymortgages.com
-labels:
-  instance: mortgage-website
-  role: websites
-  env: production
-  exporter: node
+  - https://www.jlarrymortgages.com
+  labels:
+    instance: mortgage-website
+    role: website
+    env: production
 ```
 
 Create: /home/stack-user/monitor/prometheus/rules/slis.yml
@@ -796,7 +793,7 @@ yaml
 ```
 modules:
   http_2xx:
-    prober:http
+    prober: http
     timeout: 5s
     http:
       valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]

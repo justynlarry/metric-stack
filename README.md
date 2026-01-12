@@ -952,7 +952,7 @@ tar -czf monitor-backup-$(date +%Y%m%d).tar.gz /home/stack-user/monitor/
 │                     Docker Network: monitoring                  │
 │                                                                 │
 │  ┌──────────┐         ┌──────────┐         ┌──────────┐         │
-│  │  Nginx   │────────▶│ Grafana  │◀────────│  Users   │         │
+│  │  Nginx   │───────▶│ Grafana  │◀───────│  Users   │         │
 │  │  :80     │  Proxy  │  :3000   │   HTTP  │ (Browser)│         │
 │  │  :443    │         └──────────┘         └──────────┘         │
 │  └──────────┘              │    │                               │
@@ -961,7 +961,7 @@ tar -czf monitor-backup-$(date +%Y%m%d).tar.gz /home/stack-user/monitor/
 │       │                    │    └──────────────┐                │
 │       ▼                    │                   │                │
 │  ┌──────────┐              │ Queries           │ Queries        │
-│  │ Promtail │──Push logs──▶│                   │                │
+│  │ Promtail │──Push logs─▶│                   │                │
 │  │  :9080   │              │                   │                │
 │  └──────────┘              ▼                   ▼                │
 │       │                ┌──────────┐       ┌────────────┐        │

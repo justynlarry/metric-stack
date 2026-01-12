@@ -92,7 +92,7 @@ nano prometheus.yml
 # Global settings that apply to all scrape jobs
 global:
   # Set interval 
-  scrape_interval: 5s
+  scrape_interval: 15s
 
 # List all targets/services that Prometheus will monitor
 scrape_configs:
@@ -184,17 +184,220 @@ volumes:
 - create graphs
 
 ## PHASE 2: Promtail and Loki
-- Add Loki and Promtail to the docker-compose.yml
+- add Loki and Promtail to Docker Compose:
+```
+# Promtail
+  promtail: grafana/promtail:latest
+  container_name: promtail
+  command:
+    - "-config.file=/home/stack-user/promtail/config.yml"
+    - "- config.enable-api" # Enable reload endpoint
+  volumes:
+    - ./promtail/config.yml:/etc/promtail/config.yml
+    - ./promtail/file_sd:/etc/promtail/file_sd
+    - ./var/log:/var/log:ro
+    - promtail-positions:/var/lib/promtail
+  ports:
+    - "9080:9080"
+  networks:
+    - loki
+  restart: unless-stopped
+
+# Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    volumes:
+      - ./loki/config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - loki
+    restart: unless-stopped
+volumes:
+  promtail-positions:
+  loki-data:
+
+networks:
+  loki:
+    driver: bridge
+```
+
+- Add Loki and Promtail config files:
 
 ```cd <dir_name> && nano docker-copmose.yml```
 ```
+# Loki
+
+# Disable authentication, so anyone can send logs to or query from thie Loki Instance (starter setup)
+auth_enabled: false
+
+# Listen for HTTP requests on port 3100
+server:
+  http_listen_port: 3100
+
+# Shared settings used across multiple Loki Components
+common:
+  # Base directory where Loki stores its data
+  path_prefix: /loki
+  # Define how logs are stored
+  storage:
+    filesystem:
+      # Where actual log data (chunks) is stored
+      chunks_directory: /loki/chunks
+      # Where alerting/recording rules are stored
+      rules_directory: /loki/rules
+  # Data is stored in only one copy (starter setup)
+  replication_factor: 1
+  # Configuration for Loki's has ring (used for distributing work)
+  ring:
+    # Ring state is kept in memory rather than a separate database like Consul or etcd
+    kvstore:
+      store: inmemory
+
+# Defines how logs are indexed and stored
+schema_config:
+  configs:
+    # Applies to all logs from Jan 1, 2023 onward
+    - from: 2023-01-01
+      # Used BoltDB for the index (a single=file database)
+      store: boltdb-shipper
+      # Stores chunks on the local filesystem
+      object_store: filesystem
+      schema: v11
+      index:
+        # Index files will be named starting with 'index_'
+        prefix: index_
+        # A new index file is created every 24 hours
+        period: 24h
+
+limits_config:
+  # Logs are automatically deleted after 30 days
+  retention_period: 30d
+```
+Promtail
+```
+# Promtail
+# Listen on port 9080 and disable gRPC
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+# Tracks where Promtail stopped reading each log file -> bookmark
+positions:
+  filename: /tmp/positions.yaml
+
+# Where to send the collected file logs -> Loki server's push endpoint
+#  Needs to be modified if multiple Loki instances are running
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+# Define what logs to collect
+scrape_configs:
+  # Name for collection job
+  - job_name: <job_name>
+    # Static list of targets -> adjust for auto pickup
+    file_sd_configs:
+      - files:
+          - /etc/promtail/file_sd/*.yml
+        refresh_interval: 30s
 
 ```
+- Create file_sd/system.yml 
+### Look deeper into using MinIO to distribute across multiple instances:
+```
+auth_enabled: false
+server:
+  http_listen_port: 3100
+
+common:
+  path_prefix: /loki
+  storage:
+    s3:
+      endpoint: minio.yourdomain.local:9000  # Your MinIO endpoint
+      bucketnames: loki-data
+      access_key_id: minioadmin  # Change these!
+      secret_access_key: minioadmin
+      s3forcepathstyle: true  # Important for MinIO!
+      insecure: false  # Set to true if not using HTTPS
+  replication_factor: 3
+  ring:
+    kvstore:
+      store: memberlist  # Good option for small clusters
+
+memberlist:
+  join_members:
+    - loki-1:7946  # Your Loki instances
+    - loki-2:7946
+    - loki-3:7946
+
+schema_config:
+  configs:
+    - from: 2023-01-01
+      store: boltdb-shipper
+      object_store: s3  # Uses MinIO via S3 API
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  retention_period: 7d
+```
+- Create /promtail/file_sd/nginx.yml
+```
+- targets:
+    - ${HOStNAME}
+  labels:
+    job: nginx
+    container: nginx
+    __path__: /var/log/nginx/*.log
+```
+
+- Add Nginx to the docker-compose.yml:
+```
+  nginx:
+    image: nginx:latest
+    conatiner_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/html:/usr/share/nginx/html:ro
+      - nginx-logs:/var/log/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - web
+    restart: unless-stopped
+
+
+**Key settings for MinIO:**
+- `s3forcepathstyle: true` - MinIO uses path-style URLs instead of virtual-hosted-style
+- `endpoint:` - Your MinIO server address (not AWS)
+- `insecure: true` - If you're not using TLS (not recommended for production)
+
+## Architecture Overview
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  Loki-1     │────▶│  Loki-2     │────▶│  Loki-3     │
+│ (Ingester)  │     │ (Ingester)  │     │ (Ingester)  │
+└──────┬──────┘     └──────┬──────┘     └──────┬──────┘
+       │                   │                   │
+       └───────────────────┼───────────────────┘
+                           │
+                           ▼
+                  ┌────────────────┐
+                  │  MinIO Cluster │
+                  │  (4 VMs with   │
+                  │   replication) │
+                  └────────────────┘
+```
+
 - Create loki and promtail sub-directories
 ``` mkdir loki promtail```
 - create local-config.yaml
 ```cd loki && nano local-config.yaml```
-
 - create promtail config.yaml
 ```cd promtail && nano config.yaml```
 

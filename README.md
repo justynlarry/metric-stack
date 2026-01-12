@@ -167,8 +167,7 @@ Thumbs.db
 |   |   ├── slis.yml
 |   |   ├── alerts.yml
 |   |   └── recording.yml
-|   ├── targets/
-|   |   └── blackbox.yml
+|
 │   └── file_sd/
 │       ├── prom_nodes.yml
 │       └── (other exporter configs)

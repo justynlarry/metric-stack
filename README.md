@@ -1164,7 +1164,7 @@ External Targets:
 ## The Flow (How it all works together)
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    THE MONITORING FLOW                       │
+│                    THE MONITORING FLOW                      │
 └─────────────────────────────────────────────────────────────┘
 
 Step 1: COLLECT DATA

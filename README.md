@@ -70,12 +70,16 @@ mkdir -p /home/stack-user/monitor && cd /home/stack-user/monitor
 bash
 ```
 mkdir -p prometheus/file_sd
+mkdir -p prometheus/rules
 mkdir -p promtail/file_sd
 mkdir -p loki
 mkdir -p grafana/provisioning/datasources
 mkdir -p grafana/provisioning/dashboards
 mkdir -p nginx/conf.d
 mkdir -p minio/data
+mkdir -p blackbox
+
+
 ```
 
 ### 3. Create .env file
@@ -159,9 +163,19 @@ Thumbs.db
 ├── .env
 ├── prometheus/
 │   ├── prometheus.yml
+|   ├── rules/
+|   |   ├── slis.yml
+|   |   ├── alerts.yml
+|   |   └── recording.yml
+|   ├── targets/
+|   |   └── blackbox.yml
 │   └── file_sd/
 │       ├── prom_nodes.yml
 │       └── (other exporter configs)
+|
+├──blackbox/
+|  └── blackbox.yml
+|
 ├── promtail/
 │   ├── config.yml
 │   └── file_sd/
@@ -172,16 +186,26 @@ Thumbs.db
 │   └── config.yml
 ├── grafana/
 │   ├── grafana.ini (optional)
-│   └── provisioning/
-│       ├── datasources/
-│       │   ├── loki.yml
-│       │   └── prometheus.yml
-│       └── dashboards/
-│           └── dashboard.yml
+│   ├── provisioning/
+│   |   ├── datasources/
+│   |   │   ├── loki.yml
+│   |   │   └── prometheus.yml
+│   |   └── dashboards/
+│   |       ├── dashboard.yml
+|   |       └── slis/
+|   |           └── business-overview.json
+|   |
+|   └── dashboards/
+|       
+|
 ├── nginx/
 │   ├── nginx.conf (optional)
 │   └── conf.d/
 │       └── grafana.conf
+├── node-exporter/
+│   └── textfile/
+│       └── backup.prom
+│
 └── minio/
     └── data/
 ```
@@ -193,7 +217,7 @@ Create: /home/stack-user/monitor/docker-compose.yml
 
 yaml
 ```
-version: '3.8'
+# version: '3.8'
 
 services:
   # Prometheus - Metrics collection and alerting
@@ -208,6 +232,7 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/file_sd:/etc/prometheus/file_sd:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
       - prometheus-data:/prometheus
     ports:
       - "9090:9090"
@@ -317,6 +342,20 @@ services:
     depends_on:
       - grafana
 
+    # Blackbox Exporter - Website Monitoring
+    blackbox:
+      image: prom/blackbox-exporter:latest
+      container_name: blackbox
+      volumes:
+        - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+      ports:
+        - "9115:9115"
+      command:
+        - "--config.file=/etc/blackbox_exporter/config.yml"
+      networks:
+        - monitoring
+      restart: unless-stopped
+
 volumes:
   prometheus-data:
     driver: local
@@ -329,6 +368,8 @@ volumes:
   nginx-logs:
     driver: local
   minio-data:
+    driver: local
+  blackbox-data:
     driver: local
 
 networks:
@@ -347,6 +388,9 @@ global:
   scrape_interval: 15s
   # How often to evaluate alerting rules
   evaluation_interval: 15s
+  # Load alerting and recording rules
+  rule_files:
+    - "/etc/prometheus/rules/*.yml"
 
 # List all targets/services that Prometheus will monitor
 scrape_configs:
@@ -382,6 +426,23 @@ scrape_configs:
           - /etc/prometheus/file_sd/prom_nodes.yml
         # How often to re-read the file for changes
         refresh_interval: 30s
+
+    # Blackbox - Monitor external websites
+    - job_name: 'blackbox'
+      metrics_path: /probe
+      params:
+        module: [http_2xx]
+      file_sd_configs:
+        - files:
+           - /etc/prometheus/file_sd/blackbox_addr.yml
+      relabel_configs:
+        - source_lables: [__address__]
+          target_label: __param_target
+        - source_labels: [__param_target]
+          target_label: instance
+        - target_lable: __address__
+          replacement: blackbox:9115
+
 ```
 Create: /home/stack-user/monitor/prometheus/file_sd/prom_nodes.yml
 
@@ -407,6 +468,99 @@ yaml
 #     env: production
 #     exporter: node
 ```
+
+Create: /home/stack-user/monitor/prometheus/file_sd/blackbox_addr.yml
+
+yaml
+```
+- targets:
+  - www.jlarrymortgages.com
+labels:
+  instance: mortgage-website
+  role: websites
+  env: production
+  exporter: node
+```
+
+Create: /home/stack-user/monitor/prometheus/rules/slis.yml
+
+yaml
+```
+groups:
+  - name: sli_definitions
+    interval: 30s
+    rules:
+      # SLI #1:  Is the website reachable?
+      - record: sli:website:is_up
+        expr: probe_success == 1
+
+      # SLI #2:  What's the 95th percentile response time?
+      - record: sli:website:latency_p95
+        expr: |
+          histogram_quantile(
+            0.95,
+            rate(probe_duration_seconds_bucket[5m])
+          )
+
+      # SLI #3: How many days until SSL certificate expires?
+      - record: sli:tls:days_remaining
+        expr: (probe_ssl_earliest_cert_expiry - time()) / 86400
+      
+      # SLI #5: What % of disk is free?
+      - record: sli:disk:free_percent
+        expr: |
+          (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.*"} / 
+           node_filesystem_size_bytes{fstype!~"tmpfs|fuse.*"}) * 100
+```
+
+Create: /home/stack-user/monitor/prometheus/rules/alerts.yml
+
+yaml
+```
+groups:
+  - name: sli_alerts
+    rules:
+      # Alert when website is down
+      - alert: WebsiteDown
+        expr: sli:website:is_up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Website {{ $labels.instance }} is DOWN"
+          description: "Website has been unreachable for 2 minutes"
+      
+      # Alert when website is slow
+      - alert: WebsiteSlow
+        expr: sli:website:latency_p95 > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Website {{ $labels.instance }} is slow"
+          description: "95th percentile latency is {{ $value }}s"
+      
+      # Alert when SSL certificate expiring soon
+      - alert: SSLCertificateExpiringSoon
+        expr: sli:tls:days_remaining < 14
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL certificate expiring in {{ $value }} days"
+          description: "Certificate for {{ $labels.instance }} expires soon"
+      
+      # Alert when disk space low
+      - alert: DiskSpaceLow
+        expr: sli:disk:free_percent < 15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space low on {{ $labels.instance }}"
+          description: "Only {{ $value }}% free space remaining"
+``` 
+
 ### 3. Loki Configuration (with MinIO backend)
 
 Create: /home/stack-user/monitor/loki/config.yml
@@ -633,6 +787,23 @@ datasources:
     isDefault: true
     editable: true
 ```
+
+### 7. Blackbox Monitor Configuration
+
+#### Create: /home/stack-user/monitor/blackbox/blackbox.yml
+
+yaml
+```
+modules:
+  http_2xx:
+    prober:http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+      follow_redirects: true
+      preferred_ip_protocol: "ip4"
+```
+
 ## Pre-Deployment Checklist
 
 Before running `docker-compose up -d`, verify:
@@ -993,6 +1164,45 @@ External Targets:
         └──────────────────┴──────────────────┘
                Prometheus scrapes metrics
 ```
+
+## The Flow (How it all works together)
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    THE MONITORING FLOW                       │
+└─────────────────────────────────────────────────────────────┘
+
+Step 1: COLLECT DATA
+┌──────────────────┐
+│   Exporters      │  These are tools that measure things
+│                  │
+│ • Blackbox       │  → Checks websites (up/down, speed, SSL)
+│ • Node Exporter  │  → Checks servers (disk, CPU, memory)
+│ • Custom Scripts │  → Checks backups
+└────────┬─────────┘
+         │ Exposes raw metrics (just numbers)
+         ▼
+    
+Step 2: STORE & EVALUATE
+┌──────────────────┐
+│   Prometheus     │  The brain - stores metrics and does math
+│                  │
+│ • Scrapes data   │  → Collects metrics every 15 seconds
+│ • Runs rules     │  → Converts raw numbers to SLIs
+│ • Triggers alerts│  → Sends warnings when bad things happen
+└────────┬─────────┘
+         │ Creates meaningful SLIs
+         ▼
+
+Step 3: VISUALIZE
+┌──────────────────┐
+│    Grafana       │  Pretty dashboards for humans
+│                  │
+│ • Queries SLIs   │  → Shows green/red status
+│ • Shows graphs   │  → Trends over time
+│ • Color-coded    │  → Easy to understand at a glance
+└──────────────────┘
+```
+
 ## Troubleshooting
 Loki can't connect to MinIO:
 

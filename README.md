@@ -42,19 +42,21 @@ sudo docker run hello-world
 ### 6. Add user to docker group (optional but recommended):
 
 bash
-
+```
 sudo usermod -aG docker $USER
 newgrp docker
+```
+## Phase 2: Create Directory Structure
+### 1. Create base directory:
 
-Phase 2: Create Directory Structure
-1. Create base directory:
 bash
-
+```
 mkdir -p /home/stack-user/monitor && cd /home/stack-user/monitor
+```
+### 2. Create all subdirectories:
 
-2. Create all subdirectories:
 bash
-
+```
 mkdir -p prometheus/file_sd
 mkdir -p promtail/file_sd
 mkdir -p loki
@@ -64,7 +66,7 @@ mkdir -p nginx/conf.d
 mkdir -p minio/data
 ```
 
-### Final directory structure:
+## Final directory structure:
 ```
 /home/stack-user/monitor/
 ├── docker-compose.yml
@@ -96,14 +98,16 @@ mkdir -p minio/data
 │       └── grafana.conf
 └── minio/
     └── data/
+```
 
-Phase 3: Create Configuration Files
+## Phase 3: Create Configuration Files
 1. Docker Compose - Main Stack Definition
 
 Create: /home/stack-user/monitor/docker-compose.yml
-yaml
 
-version: '3.8'
+yaml
+```
+# version: '3.8'
 
 services:
   # Prometheus - Metrics collection and alerting
@@ -231,12 +235,13 @@ volumes:
 networks:
   monitoring:
     driver: bridge
-
-2. Prometheus Configuration
+```
+### 2. Prometheus Configuration
 
 Create: /home/stack-user/monitor/prometheus/prometheus.yml
-yaml
 
+yaml
+```
 # Global settings that apply to all scrape jobs
 global:
   # How often to scrape targets
@@ -278,10 +283,11 @@ scrape_configs:
           - /etc/prometheus/file_sd/prom_nodes.yml
         # How often to re-read the file for changes
         refresh_interval: 30s
-
+```
 Create: /home/stack-user/monitor/prometheus/file_sd/prom_nodes.yml
-yaml
 
+yaml
+```
 # Example node exporter target
 - targets:
     - 192.168.1.100:9100
@@ -301,12 +307,13 @@ yaml
 #     role: database
 #     env: production
 #     exporter: node
-
-3. Loki Configuration (with MinIO backend)
+```
+### 3. Loki Configuration (with MinIO backend)
 
 Create: /home/stack-user/monitor/loki/config.yml
-yaml
 
+yaml
+```
 # Disable authentication (suitable for internal/development use)
 auth_enabled: false
 
@@ -377,12 +384,14 @@ compactor:
   retention_enabled: true
   retention_delete_delay: 2h
   retention_delete_worker_count: 150
+```
 
-4. Promtail Configuration
+### 4. Promtail Configuration
 
 Create: /home/stack-user/monitor/promtail/config.yml
-yaml
 
+yaml
+```
 # Promtail server configuration
 server:
   # Web UI and metrics available on port 9080
@@ -405,10 +414,11 @@ scrape_configs:
       - files:
           - /etc/promtail/file_sd/*.yml
         refresh_interval: 30s
+```
+#### Create: /home/stack-user/monitor/promtail/file_sd/nginx.yml
 
-Create: /home/stack-user/monitor/promtail/file_sd/nginx.yml
 yaml
-
+```
 - targets:
     - localhost
   labels:
@@ -416,22 +426,24 @@ yaml
     container: nginx
     host: ${HOSTNAME}
     __path__: /var/log/nginx/*.log
+```
+#### Create: /home/stack-user/monitor/promtail/file_sd/system.yml
 
-Create: /home/stack-user/monitor/promtail/file_sd/system.yml
 yaml
-
+```
 - targets:
     - localhost
   labels:
     job: syslog
     host: ${HOSTNAME}
     __path__: /var/log/syslog
+```
+### 5. Nginx Configuration
 
-5. Nginx Configuration
+#### Create: /home/stack-user/monitor/nginx/conf.d/grafana.conf
 
-Create: /home/stack-user/monitor/nginx/conf.d/grafana.conf
 nginx
-
+```
 server {
     listen 80;
     server_name monitoring.yourdomain.com;
@@ -454,12 +466,14 @@ server {
         proxy_set_header Host $host;
     }
 }
+```
 
-6. Grafana Data Source Provisioning
+### 6. Grafana Data Source Provisioning
 
-Create: /home/stack-user/monitor/grafana/provisioning/datasources/loki.yml
+#### Create: /home/stack-user/monitor/grafana/provisioning/datasources/loki.yml
+
 yaml
-
+```
 apiVersion: 1
 
 datasources:
@@ -469,10 +483,12 @@ datasources:
     url: http://loki:3100
     isDefault: false
     editable: true
+```
 
-Create: /home/stack-user/monitor/grafana/provisioning/datasources/prometheus.yml
+#### Create: /home/stack-user/monitor/grafana/provisioning/datasources/prometheus.yml
+
 yaml
-
+```
 apiVersion: 1
 
 datasources:
@@ -482,21 +498,22 @@ datasources:
     url: http://prometheus:9090
     isDefault: true
     editable: true
+```
 
-Phase 4: Initialize MinIO Bucket
+## Phase 4: Initialize MinIO Bucket
 
 MinIO needs the loki-data bucket created before Loki can use it.
-Option 1: Create bucket via MinIO Console (Easiest)
+### Option 1: Create bucket via MinIO Console (Easiest)
 
-    Start the stack:
+Start the stack:
 
 bash
-
+```
 cd /home/stack-user/monitor
 docker-compose up -d
 ```
 
-2. Access MinIO Console:
+### 2. Access MinIO Console:
 ```
 http://<host-ip>:9001
 
@@ -505,14 +522,16 @@ http://<host-ip>:9001
         Password: minioadmin123
     Create bucket named: loki-data
     Restart Loki:
-
+```
 bash
-
+```
 docker-compose restart loki
+```
 
-Option 2: Create bucket via MinIO Client (mc)
+### Option 2: Create bucket via MinIO Client (mc)
+
 bash
-
+```
 # Install mc client
 docker run --rm -it --entrypoint=/bin/sh minio/mc
 
@@ -521,19 +540,21 @@ mc alias set myminio http://minio:9000 minioadmin minioadmin123
 mc mb myminio/loki-data
 mc policy set public myminio/loki-data
 exit
+```
+## Phase 5: Deploy and Verify
+### 1. Start the entire stack:
 
-Phase 5: Deploy and Verify
-1. Start the entire stack:
 bash
-
+```
 cd /home/stack-user/monitor
 docker-compose up -d
+```
+### 2. Verify all containers are running:
 
-2. Verify all containers are running:
 bash
-
+```
 docker-compose ps
-
+```
 You should see all services in "Up" state:
 
     prometheus
@@ -543,23 +564,25 @@ You should see all services in "Up" state:
     nginx
     minio
 
-3. Check logs for any errors:
-bash
+### 3. Check logs for any errors:
 
+bash
+```
 # Check all logs
 docker-compose logs
 
 # Check specific service
 docker-compose logs loki
 docker-compose logs promtail
-
-4. Access the services:
+```
+### 4. Access the services:
 Service	URL	Credentials
 Grafana	http://<host-ip>:3000	admin / admin
 Prometheus	http://<host-ip>:9090	None
 MinIO Console	http://<host-ip>:9001	minioadmin / minioadmin123
 Promtail	http://<host-ip>:9080	None
-5. Verify Grafana data sources:
+
+### 5. Verify Grafana data sources:
 
     Log into Grafana
     Go to: Configuration → Data Sources
@@ -567,7 +590,7 @@ Promtail	http://<host-ip>:9080	None
         ✅ Prometheus (default)
         ✅ Loki
 
-6. Test Prometheus targets:
+### 6. Test Prometheus targets:
 
 Visit http://<host-ip>:9090/targets - you should see:
 
@@ -577,7 +600,7 @@ Visit http://<host-ip>:9090/targets - you should see:
     promtail (UP)
     minio (UP)
 
-7. Test Promtail targets:
+### 7. Test Promtail targets:
 
 Visit http://<host-ip>:9080/targets - you should see discovered log files
 8. Query logs in Grafana:
@@ -587,27 +610,32 @@ Visit http://<host-ip>:9080/targets - you should see discovered log files
     Try query: {job="nginx"}
     You should see nginx access/error logs
 
-Phase 6: Install Node Exporter on Target Machines
+## Phase 6: Install Node Exporter on Target Machines
 
 For each server you want to monitor:
-1. Download node_exporter:
-bash
+### 1. Download node_exporter:
 
+bash
+```
 wget https://github.com/prometheus/node_exporter/releases/download/v1.10.2/node_exporter-1.10.2.linux-amd64.tar.gz
+```
+### 2. Extract:
 
-2. Extract:
 bash
-
+```
 tar xvfz node_exporter-1.10.2.linux-amd64.tar.gz
 cd node_exporter-1.10.2.linux-amd64
+```
 
-3. Create systemd service:
+### 3. Create systemd service:
+
 bash
-
+```
 sudo nano /etc/systemd/system/node_exporter.service
+```
 
 ini
-
+```
 [Unit]
 Description=Node Exporter
 After=network.target
@@ -619,30 +647,36 @@ ExecStart=/usr/local/bin/node_exporter
 
 [Install]
 WantedBy=multi-user.target
+```
 
-4. Move binary and create user:
+### 4. Move binary and create user:
+
 bash
-
+```
 sudo mv node_exporter /usr/local/bin/
 sudo useradd -rs /bin/false node_exporter
+```
+### 5. Start and enable:
 
-5. Start and enable:
 bash
-
+```
 sudo systemctl daemon-reload
 sudo systemctl start node_exporter
 sudo systemctl enable node_exporter
+```
+### 6. Verify it's working:
 
-6. Verify it's working:
 bash
-
+```
 curl http://localhost:9100/metrics
+```
 
-7. Add to Prometheus:
+### 7. Add to Prometheus:
 
 Edit /home/stack-user/monitor/prometheus/file_sd/prom_nodes.yml and add:
-yaml
 
+yaml
+```
 - targets:
     - <target-ip>:9100
   labels:
@@ -651,45 +685,55 @@ yaml
     role: application
     env: production
     exporter: node
+```
+### 8. Reload Prometheus config:
 
-8. Reload Prometheus config:
 bash
-
+```
 curl -X POST http://<prometheus-host>:9090/-/reload
+```
 
-Maintenance and Operations
+#### Maintenance and Operations
 Reload configurations without restart:
-bash
 
+bash
+```
 # Reload Prometheus
 curl -X POST http://localhost:9090/-/reload
 
 # Reload Promtail
 curl -X POST http://localhost:9080/-/reload
-
+```
 View logs:
-bash
 
+bash
+```
 docker-compose logs -f <service-name>
-
+```
 Restart a service:
-bash
 
+bash
+```
 docker-compose restart <service-name>
-
+```
 Stop the stack:
-bash
 
+bash
+```
 docker-compose down
+```
 
 Stop and remove volumes (CAUTION - deletes all data):
-bash
 
+bash
+```
 docker-compose down -v
+```
 
 Backup configuration:
-bash
 
+bash
+```
 tar -czf monitor-backup-$(date +%Y%m%d).tar.gz /home/stack-user/monitor/
 ```
 
@@ -698,15 +742,15 @@ tar -czf monitor-backup-$(date +%Y%m%d).tar.gz /home/stack-user/monitor/
 ## Architecture Diagram
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Docker Network: monitoring                   │
-│                                                                   │
-│  ┌──────────┐         ┌──────────┐         ┌──────────┐        │
-│  │  Nginx   │────────▶│ Grafana  │◀────────│  Users   │        │
-│  │  :80     │  Proxy  │  :3000   │   HTTP  │ (Browser)│        │
-│  │  :443    │         └──────────┘         └──────────┘        │
-│  └──────────┘              │    │                                │
-│       │                    │    │                                │
-│       │ Logs               │    │                                │
+│                     Docker Network: monitoring                  │
+│                                                                 │
+│  ┌──────────┐         ┌──────────┐         ┌──────────┐         │
+│  │  Nginx   │────────▶│ Grafana  │◀────────│  Users   │         │
+│  │  :80     │  Proxy  │  :3000   │   HTTP  │ (Browser)│         │
+│  │  :443    │         └──────────┘         └──────────┘         │
+│  └──────────┘              │    │                               │
+│       │                    │    │                               │
+│       │ Logs               │    │                               │
 │       │                    │    └──────────────┐                │
 │       ▼                    │                   │                │
 │  ┌──────────┐              │ Queries           │ Queries        │
@@ -727,12 +771,13 @@ tar -czf monitor-backup-$(date +%Y%m%d).tar.gz /home/stack-user/monitor/
 │       │                └──────────┘            │                │
 │       │                                        │                │
 │       └──Reads logs────────────────────────────┘                │
-│          (nginx, system,                                         │
-│           containers)                                            │
-│                                                                   │
+│          (nginx, system,                                        │
+│           containers)                                           │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
-
+```
 External Targets:
+```
   ┌────────────┐     ┌────────────┐     ┌────────────┐
   │ Server 1   │     │ Server 2   │     │ Server 3   │
   │node:9100   │     │node:9100   │     │node:9100   │
@@ -740,8 +785,8 @@ External Targets:
         ▲                  ▲                  ▲
         └──────────────────┴──────────────────┘
                Prometheus scrapes metrics
-
-Troubleshooting
+```
+## Troubleshooting
 Loki can't connect to MinIO:
 
     Ensure MinIO is healthy: docker-compose logs minio

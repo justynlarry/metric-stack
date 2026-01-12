@@ -11,7 +11,8 @@ sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
 ```
-2. Add the repository to Apt sources:
+### 2. Add the repository to Apt sources:
+
 bash
 ```
 echo \
@@ -19,23 +20,27 @@ echo \
   $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
-3. Update and install Docker:
-bash
+### 3. Update and install Docker:
 
+bash
+```
 sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+### 4. Verify Docker is running:
 
-4. Verify Docker is running:
 bash
-
+```
 sudo systemctl status docker
+```
+### 5. Test installation:
 
-5. Test installation:
 bash
-
+```
 sudo docker run hello-world
+```
+### 6. Add user to docker group (optional but recommended):
 
-6. Add user to docker group (optional but recommended):
 bash
 
 sudo usermod -aG docker $USER

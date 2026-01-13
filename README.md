@@ -435,29 +435,10 @@ rule_files:
 # List all targets/services that Prometheus will monitor
 scrape_configs:
   # Monitor Prometheus itself
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
-
-  # Monitor Grafana
-  - job_name: 'grafana'
-    static_configs:
-      - targets: ['grafana:3000']
-
-  # Monitor Loki
-  - job_name: 'loki'
-    static_configs:
-      - targets: ['loki:3100']
-
-  # Monitor Promtail
-  - job_name: 'promtail'
-    static_configs:
-      - targets: ['promtail:9080']
-
-  # Monitor MinIO
-  - job_name: 'minio'
-    static_configs:
-      - targets: ['minio:9000']
+  - job_name: 'internal'
+    file_sd_configs:
+      - files:
+        - /etc/prometheus/file_sd/internal_monitoring.yml
 
   # File-based service discovery for node_exporter
   - job_name: 'nodes'
@@ -708,6 +689,16 @@ groups:
         annotations:
           summary: "Grafana is down."
           description: "Dashboards are unavailable."
+
+      - alert: MinIODown
+        expr: up{service="minio"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          tenant: internal
+        annotations:
+          summary: "MinIO is down."
+          description: "Object storage is unavailable - Loki cannot store logs."
 
       - alert: MonitoringVMHighMemory
         expr: |

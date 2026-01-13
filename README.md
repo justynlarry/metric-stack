@@ -488,24 +488,33 @@ Create: /home/stack-user/monitor/prometheus/file_sd/prom_nodes.yml
 
 yaml
 ```
-# Example node exporter target
+# Internal Monitoring - Monitoring the Host VM
 - targets:
-    - 192.168.1.100:9100
+    - localhost:9100
   labels:
-    instance: webserver-01
-    hostname: web01
-    role: webserver
-    env: production
+    instance: internal
+    environment: production
+    role: control-plane
+    host: monitoring-vm
     exporter: node
 
-# Add more nodes as needed
+# Client servers (example - add your actual servers)
+# - targets:
+#     - 192.168.1.100:9100
+#   labels:
+#     tenant: client_acme
+#     environment: production
+#     role: webserver
+#     host: web01
+#     exporter: node
+
 # - targets:
 #     - 192.168.1.101:9100
 #   labels:
-#     instance: database-01
-#     hostname: db01
+#     tenant: client_acme
+#     environment: production
 #     role: database
-#     env: production
+#     host: db01
 #     exporter: node
 ```
 
@@ -513,13 +522,74 @@ Create: /home/stack-user/monitor/prometheus/file_sd/blackbox_addr.yml
 
 yaml
 ```
+# Internal Monitoring - Personal Websites
 - targets:
   - https://www.jlarrymortgages.com
   labels:
+    tenant: internal
     instance: mortgage-website
     role: website
     env: production
+
+# Client monitoring
+#- targets:
+#    - https://<some_domain.com>
+#  labels:
+#    tenant: client_acme
+#    environment: production
+#    role: website
+#    instance: <website_type>
+
 ```
+
+Create: /home/stack-user/monitor/prometheus/file_sd/internal_monitoring.yml
+
+yaml
+```
+# Monitor the monitoring stack itself
+- targets:
+    - localhost:9090
+  labels:
+    tenant: internal
+    environment: production
+    role: control-plane
+    service: prometheus
+
+- targets:
+    - loki:3100
+  labels:
+    tenant: internal
+    environment: production
+    role: control-plane
+    service: loki
+
+- targets:
+    - grafana:3000
+  labels:
+    tenant: internal
+    environment: production
+    role: control-plane
+    service: promtail
+
+- targets:
+    - blackbox:9115
+  labels:
+    tenant: internal
+    environment: production
+    role: control-plane
+    service: blackbox
+
+- targets:
+    - minio:9000
+  labels:
+    tenant: internal
+    environment: production
+    role: control-plane
+    service: minio
+
+
+```
+
 
 Create: /home/stack-user/monitor/prometheus/rules/slis.yml
 
@@ -664,13 +734,30 @@ storage_config:
 limits_config:
   # Automatically delete logs after 30 days
   retention_period: 30d
+
+  # Per-tenant rate limits (protects against bad clients)
+  ingestion_rate_mb: 10
+  ingestion_burst_size: 20
+
   # Maximum number of active streams per tenant
   max_streams_per_user: 10000
+
   # Maximum line size (256KB)
   max_line_size: 256000
+
   # Reject old samples
   reject_old_samples: true
   reject_old_samples_max_age: 168h
+
+  # Query Limits
+  max_query_length: 721h #30 Days
+  max_query_lookback: 30d
+  max_entries_limit_per_query: 10000
+
+  # Cardinality Protection
+  max_label_name_length: 1024
+  max_label_value_length: 2048
+  max_label_names_per_series: 30
 
 # Compactor - cleans up old data
 compactor:
@@ -718,9 +805,10 @@ yaml
 - targets:
     - localhost
   labels:
+    tenant: internal
     job: nginx
-    container: nginx
-    host: ${HOSTNAME}
+    environment: production
+    host: monitoring-vm
     __path__: /var/log/nginx/*.log
 ```
 #### Create: /home/stack-user/monitor/promtail/file_sd/system.yml
@@ -730,8 +818,10 @@ yaml
 - targets:
     - localhost
   labels:
+    tenant: internal
+    environment: production
     job: syslog
-    host: ${HOSTNAME}
+    host: monitoring-vm
     __path__: /var/log/syslog
 ```
 ### 5. Nginx Configuration

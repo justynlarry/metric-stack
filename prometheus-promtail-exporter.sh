@@ -1,11 +1,12 @@
 #!/bin/bash
 set -e
 
+# Get client_name Variable from Installer
 echo "Please enter client name: "
 read client_name
 
 # Use system hostname if $HOST isn't set
-INSTANCE_HOSTNAME=${hostname}
+INSTANCE_HOSTNAME=$(hostname)
 
 
 echo "[*] Updating packages..."
@@ -42,7 +43,7 @@ EOF
 #############################################
 # 2. PromTail Exporter
 #############################################
-echo "[*] Installing Promtail Exporter..."
+echo "[*] Installing Promtail..."
 
 mkdir -p /etc/promtail
 mkdir -p /var/lib/promtail
@@ -69,16 +70,21 @@ clients:
   - url: http://100.126.10.29:3100/loki/api/v1/push
 
 scrape_configs:
-  - targets:
-    - localhost
-  labels:
-    tenant: ${client_name}
-    job: syslog
-    environment: production
-    host: ${INSTANCE_HOSTNAME}
-    __path__: /var/log/syslog
+  - job_name: syslog
+  static_configs:
+    - targets:
+        - localhost
+      labels:
+        tenant: ${client_name}
+        job: syslog
+        environment: production
+        host: ${INSTANCE_HOSTNAME}
+        __path__: /var/log/syslog
 
 EOF
+
+chown -R promtail:promtail /etc/promtail
+chown -R promtail:promtail /var/lib/promtail
 
 # Systemd Service
 cat << 'EOF' > /etc/systemd/system/promtail.service
@@ -106,5 +112,20 @@ systemctl daemon-reload
 systemctl enable --now promtail.service
 systemctl enable --now node_exporter.service
 
+sleep 4
+systemctl status node_exporter.service --no-pager
+systemctl status promtail.service --no-pager
 
-echo "[+] Setup complete FOR ${client_name} on $(INSTANC_HOSTNAME}!"
+
+echo ""
+echo "[+] Setup complete FOR ${client_name} on $(INSTANCE_HOSTNAME}!"
+echo ""
+echo "Node Exporter listening on: http://$(hostname -I | awk '{print $1}'):9100"
+echo "Promtail listening on: http://$(hostname -I | awk '{print $1}'):9080"
+echo ""
+echo "Test with:"
+echo " curl http://localhost:9100/metrics | head"
+echo " curl http://localhost:9080/metrics | head"
+
+
+

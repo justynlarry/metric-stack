@@ -228,6 +228,7 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
       - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
+      - '--storage.tsdb.retention.size=8G'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/file_sd:/etc/prometheus/file_sd:ro
@@ -238,6 +239,12 @@ services:
     networks:
       - monitoring
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
 
   # Grafana - Visualization and dashboards
   grafana:
@@ -260,6 +267,12 @@ services:
     depends_on:
       - prometheus
       - loki
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
 
   # MinIO - S3-compatible object storage for Loki
   minio:
@@ -282,6 +295,12 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    deploy:
+      resource:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
 
   # Loki - Log aggregation system
   loki:
@@ -302,6 +321,12 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
 
   # Promtail - Log collector and shipper
   promtail:
@@ -323,6 +348,12 @@ services:
     restart: unless-stopped
     depends_on:
       - loki
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
 
   # Nginx - Reverse proxy and web server
   nginx:
@@ -340,6 +371,12 @@ services:
     restart: unless-stopped
     depends_on:
       - grafana
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 32M
 
   # Blackbox Exporter - Website Monitoring
   blackbox:
@@ -354,6 +391,12 @@ services:
     networks:
       - monitoring
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 32M
 
 volumes:
   prometheus-data:

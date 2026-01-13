@@ -670,6 +670,80 @@ groups:
           description: "Only {{ $value }}% free space remaining"
 ``` 
 
+Create new file: /home/stack-user/monitor/prometheus/rules/platform_alerts.yml
+
+yaml
+```
+groups:
+  - name: platform_health
+    interval: 30s
+    rules:
+      # Service Down Alerts
+      - alert: PrometheusDown
+        expr: up{service="prometheus"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          tenant: internal
+        annotations:
+          summary: "Prometheus is down"
+          description: "The monitoring platform itself is unavailable."
+
+      - alert: LokiDown
+        expr: up{service="loki"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          tenant: internal
+        annotations:
+          summary: "Loki is down."
+          description: "Log aggreation is unavailable."
+
+      - alert: GrafanaDown
+        expr: up{service="grafana"} == 0
+        for: 1m
+        labels:
+          severity: warning
+          tenant: internal
+        annotations:
+          summary: "Grafana is down."
+          description: "Dashboards are unavailable."
+
+      - alert: MonitoringVMHighMemory
+        expr: |
+          (1 - (node_memory_MemAvailable_bytes{tenant="internal", role="control-plane"} / 
+                node_memory_MemTotal_bytes{tenant="internal", role="control-plane"})) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          tenant: internal
+        annotations:
+          summary: "Monitoring VM memory usage high."
+          description: "Memory usage is {{ $value }}%"
+
+      - alert: MonitoringVMHighDisk
+        expr: |
+          (1 - (node_filesystem_avail_bytes{tenant="internal", role="control-plane", fstype!~"tmpfs|fuse.*"} / 
+                node_filesystem_size_bytes{tenant="internal", role="control-plane", fstype!~"tmpfs|fuse.*"})) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          tenant: internal
+        annotations:
+          summary: "Monitoring VM disk usage high."
+          description: "Disk usage is {{ $value }}%"
+
+      - alert: PrometheusScrapeFailures
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Prometheus cannot scrape {{ $labels.instance }}"
+          description: "Target has been down for 5 minutes."
+```
+
+
 ### 3. Loki Configuration (with MinIO backend)
 
 Create: /home/stack-user/monitor/loki/config.yml

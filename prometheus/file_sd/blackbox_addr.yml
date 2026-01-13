@@ -1,1 +1,17 @@
 # Internal Monitoring
+- targets:
+  - https://www.jlarrymortgages.com
+  labels:
+    tenant: internal
+    instance: mortgage-website
+    role: website
+    environment: production
+
+# Client Monitoring
+#- targets:
+#    - https://<domain.com>
+#  labels:
+#    tenant: <client_name>
+#    environment: production
+#    role: website
+#    instance: <website_type>

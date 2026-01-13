@@ -167,7 +167,7 @@ Thumbs.db
 |   |   ├── slis.yml
 |   |   ├── alerts.yml
 |   |   └── recording.yml
-|
+|   |
 │   └── file_sd/
 │       ├── prom_nodes.yml
 │       └── (other exporter configs)
@@ -296,7 +296,7 @@ services:
       timeout: 20s
       retries: 3
     deploy:
-      resource:
+      resources:
         limits:
           memory: 1G
         reservations:
@@ -438,7 +438,8 @@ scrape_configs:
   - job_name: 'internal'
     file_sd_configs:
       - files:
-        - /etc/prometheus/file_sd/internal_monitoring.yml
+          - /etc/prometheus/file_sd/internal_monitoring.yml
+        refresh_interval: 30s
 
   # File-based service discovery for node_exporter
   - job_name: 'nodes'
@@ -473,7 +474,8 @@ yaml
 - targets:
     - localhost:9100
   labels:
-    instance: internal
+    tenant: internal
+    instance: monitoring-vm
     environment: production
     role: control-plane
     host: monitoring-vm
@@ -510,7 +512,7 @@ yaml
     tenant: internal
     instance: mortgage-website
     role: website
-    env: production
+    environment: production
 
 # Client monitoring
 #- targets:
@@ -546,6 +548,14 @@ yaml
 
 - targets:
     - grafana:3000
+  labels:
+    tenant: internal
+    environment: production
+    role: control-plane
+    service: grafana
+
+- targets:
+    - promtail:9080
   labels:
     tenant: internal
     environment: production
@@ -802,7 +812,7 @@ limits_config:
 
   # Per-tenant rate limits (protects against bad clients)
   ingestion_rate_mb: 10
-  ingestion_burst_size: 20
+  ingestion_burst_size_mb: 20
 
   # Maximum number of active streams per tenant
   max_streams_per_user: 10000

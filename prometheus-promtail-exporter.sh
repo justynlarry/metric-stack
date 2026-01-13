@@ -4,6 +4,8 @@ set -e
 echo "Please enter client name: "
 read client_name
 
+# Use system hostname if $HOST isn't set
+INSTANCE_HOSTNAME=${hostname}
 
 
 echo "[*] Updating packages..."
@@ -49,13 +51,13 @@ usermod -aG adm promtail
 
 cd /tmp
 PT_VERSION="3.0.0"
-wget -q https://github.com/grafana/loki/releases/download/v${PT_VERSION}/logcli-linux-amd64.zip
+wget -q https://github.com/grafana/loki/releases/download/v${PT_VERSION}/promtail-linux-amd64.zip
 unzip promtail-linux-amd64.zip
 mv promtail-linux-amd64 /usr/local/bin/promtail
 chmod +x /usr/local/bin/promtail
 
 # Create Config file:
-cat << 'EOF' > /etc/promtail/config.yml
+cat << EOF > /etc/promtail/config.yml
 server:
   http_listen_port: 9080
   grpc_listen_port: 0
@@ -73,7 +75,7 @@ scrape_configs:
     tenant: ${client_name}
     job: syslog
     environment: production
-    host: $HOST
+    host: ${INSTANCE_HOSTNAME}
     __path__: /var/log/syslog
 
 EOF
@@ -105,4 +107,4 @@ systemctl enable --now promtail.service
 systemctl enable --now node_exporter.service
 
 
-echo "[+] Setup complete!"
+echo "[+] Setup complete FOR ${client_name} on $(INSTANC_HOSTNAME}!"

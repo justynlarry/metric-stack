@@ -1,0 +1,25 @@
+# Internal Monitoring - Monitoring the HOST VM
+- targets:
+    - localhost:9100
+  labels:
+    tenant: internal
+    instance: monitoring-vm
+    environment: production
+    role: control-plane
+    host: monitoring-vm
+    exporter: node
+
+# Client Servers
+
+#- targets:
+#    - <ip_address>:9100
+#  labels:
+#    tenant: <client_name>
+    # Used to distinguish between types of servers (production, staging, dev)
+#    environment:
+    # Identifies what the Server Does
+#    role: <server_job>
+    # Name for the server (display)
+#    host:
+    # Label to tell what type of metrics are being sent
+#    exporter: node

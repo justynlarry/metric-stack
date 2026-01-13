@@ -1,0 +1,43 @@
+groups:
+  - name: sli_alerts
+    rules:
+      # Alert when website is down
+      - alert: WebsiteDown
+        expr: sli:website:is_up == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Website {{ $labels.instance }} is DOWN."
+          description: "Website has been unreachable for 2 Minutes."
+
+      # Alert when website is slow
+      - alert: WebsiteSlow
+        expr: sli:website:latency_p95 > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Website {{ $labels.instance }} is SLOW."
+          description: "95th percentile latency is {{ $value }}s"
+
+      # Alert when SSL Certification expiring soon
+      - alert: SSLCertificateExpiringSoon
+        expr: sli:tls:days_remaining < 14
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "SSL Certificate expiring in {{ $value }} days."
+          description: "Certificate for {{ $labels.instance }} exires soon."
+
+      # Alert when disk space is low
+      - alert: DiskSpaceLow
+        expr: sli:disk:free_percent < 15
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space is low on {{ $labels.instance }}."
+          description: "Only {{ $value }}% free space remaining."
+

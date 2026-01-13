@@ -11,7 +11,7 @@ rule_files:
 
 # List all targets/services that Prometheus will monitor
 
-# Internal Monitor (This VM)
+# Internal Monitor - Monitors the entire stack (loki, grafana, promtail, blackbox, minio)
 scrape_configs:
   - job_name: 'internal'
     file_sd_configs:

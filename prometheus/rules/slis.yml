@@ -1,0 +1,25 @@
+groups:
+  - name: sli_definitions
+    interval: 30s
+    rules:
+      # SLI #1:  Is the website reachable?
+      - record: sli:website:is_up
+        expr: probe_success == 1
+
+      # SLI #2:  What's the 95th percentile response time?
+      - record: sli:website:latency_p95
+        expr: |
+          histogram_quantile(
+            0.95,
+            rate(probe_duration_seconds_bucket[5m])
+          )
+
+      # SLI #3: How many days until SSL Certificate Expires?
+      - record: sli:tls:days_remaining
+        expr: (probe_ssl_earliest_cert_expiry - time()) / 86400
+
+      # SLI #4: What % of disk is free?
+      - record: sli:disk:free_percent
+        expr: |
+           (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.*"} /
+           node_filesystem_size_bytes{fstype!~"tmpfs|fuse.*"}) * 100

@@ -89,6 +89,16 @@ scrape_configs:
         host: ${INSTANCE_HOSTNAME}
         __path__: /var/log/syslog
 
+  - job_name: journal
+    journal:
+      max_age: 12h
+    labels:
+      tenant: ${client_name}
+      job: systemd-journal
+      environment: production
+      host: ${INSTANCE_HOSTNAME} 
+
+
 EOF
 
 chown -R promtail:promtail /etc/promtail

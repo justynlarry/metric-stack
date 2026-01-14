@@ -228,7 +228,7 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
       - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
-      - '--storage.tsdb.retention.size=8G'
+      - '--storage.tsdb.retention.size=8GB'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/file_sd:/etc/prometheus/file_sd:ro
@@ -803,7 +803,6 @@ storage_config:
     active_index_directory: /loki/boltdb-shipper-active
     cache_location: /loki/boltdb-shipper-cache
     cache_ttl: 24h
-    shared_store: s3
 
 # Limits and retention
 limits_config:
@@ -835,6 +834,8 @@ limits_config:
   max_label_names_per_series: 30
 
 # Compactor - cleans up old data
+
+# !!! THIS NEEDS TO BE COMMENTED OUT AT STARTUP, WILL CAUSE ERROR IN LOKI IF THERE ARE NO LOGS !!!
 compactor:
   working_directory: /loki/compactor
   shared_store: s3

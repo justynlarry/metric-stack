@@ -27,7 +27,7 @@ groups:
           description: "Log aggregation is unavailable."
 
       # Grafana
-      - alert:GrafanDown
+      - alert: GrafanDown
         expr: up{service="grafana"} == 0
         for: 1m
         labels:

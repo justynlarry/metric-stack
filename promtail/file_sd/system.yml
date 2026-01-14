@@ -1,5 +1,5 @@
 - targets:
-    localhost
+    - localhost
   labels:
     tenant: internal
     environment: production

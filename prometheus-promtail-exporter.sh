@@ -55,6 +55,7 @@ mkdir -p /etc/promtail
 mkdir -p /var/lib/promtail
 useradd --system --shell /bin/false promtail || true
 usermod -aG adm promtail
+usermod -aG systemd-journal promtail
 
 cd /tmp
 PT_VERSION="3.0.0"
@@ -74,7 +75,7 @@ positions:
   filename: /var/lib/promtail/positions.yaml
 
 clients:
-  - url: ${LOKI_URL}:3100/loki/api/v1/push
+  - url: ${LOKI_URL}/loki/api/v1/push
 
 # NOTE: This 
 scrape_configs:
@@ -91,12 +92,13 @@ scrape_configs:
 
   - job_name: journal
     journal:
+      path: /var/log/journal
       max_age: 12h
-    labels:
-      tenant: ${client_name}
-      job: systemd-journal
-      environment: production
-      host: ${INSTANCE_HOSTNAME} 
+      labels:
+        tenant: ${client_name}
+        job: systemd-journal
+        environment: production
+        host: ${INSTANCE_HOSTNAME} 
 
 
 EOF

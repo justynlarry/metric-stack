@@ -20,3 +20,12 @@ scrape_configs:
       - files:
         - /etc/promtail/file_sd/*.yml
         refresh_interval: 30s
+  - job_name: systemd-journal
+    journal:
+      path: /var/log/journal
+      matches: _SYSTEMD_UNIT
+      max_age: 12h
+      labels:
+        job: systemd-journal
+        host: monitoring-vm
+        tenant: internal

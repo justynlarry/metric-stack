@@ -547,15 +547,17 @@ Create: /home/stack-user/monitor/prometheus/file_sd/internal_monitoring.yml
 
 yaml
 ```
-# Monitor the monitoring stack itself
+# Monitor the Stack itself
 - targets:
     - localhost:9090
+  # Prometheus
   labels:
     tenant: internal
     environment: production
     role: control-plane
     service: prometheus
 
+# Loki
 - targets:
     - loki:3100
   labels:
@@ -564,6 +566,7 @@ yaml
     role: control-plane
     service: loki
 
+# Grafana
 - targets:
     - grafana:3000
   labels:
@@ -572,6 +575,7 @@ yaml
     role: control-plane
     service: grafana
 
+# Promtail
 - targets:
     - promtail:9080
   labels:
@@ -580,6 +584,7 @@ yaml
     role: control-plane
     service: promtail
 
+# Blackbox
 - targets:
     - blackbox:9115
   labels:
@@ -588,6 +593,7 @@ yaml
     role: control-plane
     service: blackbox
 
+# MinIO
 - targets:
     - minio:9000
   labels:
@@ -595,7 +601,7 @@ yaml
     environment: production
     role: control-plane
     service: minio
-
+    __metrics_path__: /minio/v2/metrics/cluster
 
 ```
 

@@ -77,10 +77,9 @@ positions:
 clients:
   - url: ${LOKI_URL}/loki/api/v1/push
 
-# NOTE: This 
 scrape_configs:
   - job_name: syslog
-  static_configs:
+    static_configs:
     - targets:
         - localhost
       labels:
@@ -98,7 +97,7 @@ scrape_configs:
         tenant: ${client_name}
         job: systemd-journal
         environment: production
-        host: ${INSTANCE_HOSTNAME} 
+        host: ${INSTANCE_HOSTNAME}
 
 
 EOF

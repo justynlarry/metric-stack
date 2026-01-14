@@ -52,3 +52,4 @@
     environment: production
     role: control-plane
     service: minio
+    __metrics_path__: /minio/v2/metrics/cluster

@@ -1,0 +1,9 @@
+# Promtail server configuration
+server:
+  # Web UI and metrics available on port 9080
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+# Position file tracks where Promtail stopped reading each log file
+positions:
+  filename: /var/lib/promtail/positions.yaml

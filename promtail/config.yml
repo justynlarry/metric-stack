@@ -7,3 +7,16 @@ server:
 # Position file tracks where Promtail stopped reading each log file
 positions:
   filename: /var/lib/promtail/positions.yaml
+
+# Where to send collected logs
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+# Define what logs to collect
+scrape_configs:
+  # File-based service discovery
+  - job_name: file_sd
+    file_sd_configs:
+      - files:
+        - /etc/promtail/file_sd/*.yml
+        refresh_interval: 30s

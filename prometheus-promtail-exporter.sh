@@ -9,13 +9,19 @@ read client_name
 INSTANCE_HOSTNAME=$(hostname)
 
 
+# Update apt packages and instal unzip and wget
 echo "[*] Updating packages..."
-apt update -y && apt install unzip -y
+DEBIAN_FRONTEND=noninteractive apt update -y
+DEBIAN_FRONTEND=noninteractive apt install -y unzip wget
+
 
 #############################################
 # 1. Prometheus Node Exporter
 #############################################
 echo "[*] Installing Node Exporter..."
+
+# Create User node_exporter
+useradd --system --no-create-home --shell /usr/sbin/nologin node_exporter || true
 
 cd /tmp
 NODE_VERSION="1.8.2"
@@ -32,7 +38,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-User=nobody
+User=node_exporter
 ExecStart=/usr/local/bin/node_exporter
 Restart=always
 
@@ -58,6 +64,7 @@ mv promtail-linux-amd64 /usr/local/bin/promtail
 chmod +x /usr/local/bin/promtail
 
 # Create Config file:
+LOKI_URL="http://100.126.10.29:3100"
 cat << EOF > /etc/promtail/config.yml
 server:
   http_listen_port: 9080
@@ -67,8 +74,9 @@ positions:
   filename: /var/lib/promtail/positions.yaml
 
 clients:
-  - url: http://100.126.10.29:3100/loki/api/v1/push
+  - url: ${LOKI_URL}:3100/loki/api/v1/push
 
+# NOTE: This 
 scrape_configs:
   - job_name: syslog
   static_configs:
@@ -118,7 +126,7 @@ systemctl status promtail.service --no-pager
 
 
 echo ""
-echo "[+] Setup complete FOR ${client_name} on $(INSTANCE_HOSTNAME}!"
+echo "[+] Setup complete FOR ${client_name} on ${INSTANCE_HOSTNAME}!"
 echo ""
 echo "Node Exporter listening on: http://$(hostname -I | awk '{print $1}'):9100"
 echo "Promtail listening on: http://$(hostname -I | awk '{print $1}'):9080"

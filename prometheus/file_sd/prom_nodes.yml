@@ -11,6 +11,18 @@
 
 # Client Servers
 
+# Client-A
+- targets:
+    - 192.168.0.12:9100
+  labels:
+    tenant: Client-A
+    instance: db-svr02
+    environment: production
+    role: client
+    host: db-svr02
+    exporter: node
+
+
 #- targets:
 #    - <ip_address>:9100
 #  labels:

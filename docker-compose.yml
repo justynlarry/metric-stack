@@ -8,7 +8,7 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--web.enable-lifecycle'
       - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
-      - '--storage.tsdb.retention.size=8G'
+      - '--storage.tsdb.retention.size=8GB'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/file_sd:/etc/prometheus/file_sd:ro
@@ -114,7 +114,6 @@ services:
     container_name: promtail
     command:
       - "-config.file=/etc/promtail/config.yml"
-      - "-config.enable-api"
     volumes:
       - ./promtail/config.yml:/etc/promtail/config.yml:ro
       - ./promtail/file_sd:/etc/promtail/file_sd:ro

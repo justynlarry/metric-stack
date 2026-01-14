@@ -219,7 +219,7 @@ yaml
 # version: '3.8'
 
 services:
-  # Prometheus - Metrics collection and alerting
+  # Prometheus - Metrics Collection and Alerting/'The Brain'/
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
@@ -246,7 +246,7 @@ services:
         reservations:
           memory: 512M
 
-  # Grafana - Visualization and dashboards
+  # Grafana - Visualization and Dashboards/"The Face"
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -274,7 +274,7 @@ services:
         reservations:
           memory: 128M
 
-  # MinIO - S3-compatible object storage for Loki
+  # MinIO - S3-Compatible object storage for Loki/"The Hard Drive"
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -282,6 +282,7 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+      - MINIO_PROMETHEUS_AUTH_TYPE=public
     volumes:
       - minio-data:/data
     ports:
@@ -302,7 +303,7 @@ services:
         reservations:
           memory: 256M
 
-  # Loki - Log aggregation system
+  # Loki - Log aggregation system/"Log Engine"
   loki:
     image: grafana/loki:latest
     container_name: loki
@@ -328,18 +329,17 @@ services:
         reservations:
           memory: 256M
 
-  # Promtail - Log collector and shipper
+  # Promtail - Log Collector and Shipper (Local Monitor -> also installed on servers to monitor)/"The Shipper"
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
     command:
       - "-config.file=/etc/promtail/config.yml"
-      - "-config.enable-api"
     volumes:
       - ./promtail/config.yml:/etc/promtail/config.yml:ro
       - ./promtail/file_sd:/etc/promtail/file_sd:ro
       - /var/log:/var/log:ro
-      - nginx-logs:/var/log/nginx:ro
+      - nginx-logs:/var/logs/nginx:ro
       - promtail-positions:/var/lib/promtail
     ports:
       - "9080:9080"
@@ -355,7 +355,7 @@ services:
         reservations:
           memory: 64M
 
-  # Nginx - Reverse proxy and web server
+  # Nginx - Reverse Proxy and Web Server/"The Gateway"
   nginx:
     image: nginx:alpine
     container_name: nginx
@@ -378,7 +378,7 @@ services:
         reservations:
           memory: 32M
 
-  # Blackbox Exporter - Website Monitoring
+  # Blackbox Exporter - Website Monitoring/"The Prober"
   blackbox:
     image: prom/blackbox-exporter:latest
     container_name: blackbox
@@ -397,6 +397,24 @@ services:
           memory: 128M
         reservations:
           memory: 32M
+
+  # Node Exporter - Prometheus
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - /:/host:ro,rslave
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
 
 volumes:
   prometheus-data:

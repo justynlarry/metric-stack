@@ -1,6 +1,6 @@
 # Internal Monitoring - Monitoring the HOST VM
 - targets:
-    - localhost:9100
+    - node-exporter:9100
   labels:
     tenant: internal
     instance: monitoring-vm

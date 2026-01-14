@@ -488,9 +488,9 @@ Create: /home/stack-user/monitor/prometheus/file_sd/prom_nodes.yml
 
 yaml
 ```
-# Internal Monitoring - Monitoring the Host VM
+# Internal Monitoring - Monitoring the HOST VM
 - targets:
-    - localhost:9100
+    - node-exporter:9100
   labels:
     tenant: internal
     instance: monitoring-vm
@@ -499,24 +499,21 @@ yaml
     host: monitoring-vm
     exporter: node
 
-# Client servers (example - add your actual servers)
-# - targets:
-#     - 192.168.1.100:9100
-#   labels:
-#     tenant: client_acme
-#     environment: production
-#     role: webserver
-#     host: web01
-#     exporter: node
+# Client Servers
 
-# - targets:
-#     - 192.168.1.101:9100
-#   labels:
-#     tenant: client_acme
-#     environment: production
-#     role: database
-#     host: db01
-#     exporter: node
+#- targets:
+#    - <ip_address>:9100
+#  labels:
+#    tenant: <client_name>
+    # Used to distinguish between types of servers (production, staging, dev)
+#    environment:
+    # Identifies what the Server Does
+#    role: <server_job>
+    # Name for the server (display)
+#    host:
+    # Label to tell what type of metrics are being sent
+#    exporter: node
+
 ```
 
 Create: /home/stack-user/monitor/prometheus/file_sd/blackbox_addr.yml

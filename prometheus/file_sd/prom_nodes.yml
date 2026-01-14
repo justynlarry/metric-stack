@@ -22,6 +22,60 @@
     host: db-svr02
     exporter: node
 
+- targets:
+    - 192.168.0.172:9100
+  labels:
+    tenant: Client-A
+    instance: db-svr01
+    environment: production
+    role: client
+    host: db-svr01
+    exporter: node
+
+- targets:
+    - 192.168.0.11:9100
+  labels:
+    tenant: Client-A
+    instance: sys-monitor
+    environment: production
+    role: client
+    host: sys-monitor
+    exporter: node
+
+# Client-B
+
+- targets:
+    - 192.168.0.121:9100
+  labels:
+    tenant: Client-B
+    instance: file-server
+    environment: production
+    role: client
+    host: file-server
+    exporter: node
+
+- targets:
+    - 192.168.0.120:9100
+  labels:
+    tenant: Client-B
+    instance: mtg-webserver
+    environment: production
+    role: client
+    host: mtg-webserver
+    exporter: node
+
+- targets:
+    - 100.121.87.54:9100
+  labels:
+    tenant: Client-B
+    instance: debBlue
+    environment: production
+    role: client
+    host: debBlue
+    exporter: node
+
+
+
 
 #- targets:
 #    - <ip_address>:9100

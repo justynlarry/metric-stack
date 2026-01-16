@@ -1,6 +1,6 @@
 # Internal Monitoring
 - targets:
-  - https://www.jlarrymortgages.com
+    - https://www.jlarrymortgages.com
   labels:
     tenant: internal
     instance: mortgage-website

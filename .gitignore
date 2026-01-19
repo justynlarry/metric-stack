@@ -12,6 +12,7 @@ prometheus/data
 
 # Loki Data
 loki/data
+loki/config.yml
 
 # Promtail positions
 promtail/positions/

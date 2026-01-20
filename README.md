@@ -874,7 +874,6 @@ Create: /home/stack-user/monitor/promtail/config.yml
 
 yaml
 ```
-  GNU nano 8.4                                                                                                 promtail/config.yml                                                                                                          
 # Promtail server configuration
 server:
   # Web UI and metrics available on port 9080
@@ -918,8 +917,8 @@ yaml
     tenant: internal
     job: nginx
     environment: production
-    host: monitoring-vm
-    __path__: /var/log/nginx/*.log
+    host: monitoring_vm
+    __path__: /nginx-logs/*.log
 ```
 #### Create: /home/stack-user/monitor/promtail/file_sd/system.yml
 
@@ -933,8 +932,45 @@ yaml
     job: syslog
     host: monitoring-vm
     __path__: /var/log/syslog
+
+- targets:
+    - localhost
+  labels:
+    tenant: internal
+    environment: production
+    job: auth
+    host: monitoring-vm
+    __path__: /var/log/auth.log
+
+- targets:
+    - localhost
+  labels:
+    tenant: internal
+    environment: production
+    job: kern
+    host: monitoring_vm
+    __path__: /var/log/kern.log
+
 ```
 ### 5. Nginx Configuration
+
+#### Create: /home/stack-user/monitor/nginx/Dockerfile
+
+yaml
+```
+FROM nginx:alpine
+
+# Remove the default symlinks that point to stdout/stderr
+RUN rm -f /var/log/nginx/access.log /var/log/nginx/error.log
+
+# Create empty log files that nginx will write to
+RUN touch /var/log/nginx/access.log /var/log/nginx/error.log
+
+# Ensure nginx user can write to these files
+RUN chown nginx:nginx /var/log/nginx/access.log /var/log/nginx/error.log
+
+```
+
 
 #### Create: /home/stack-user/monitor/nginx/conf.d/grafana.conf
 

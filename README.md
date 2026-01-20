@@ -356,8 +356,10 @@ services:
           memory: 64M
 
   # Nginx - Reverse Proxy and Web Server/"The Gateway"
-  nginx:
-    image: nginx:alpine
+nginx:
+  build:
+    context: ./nginx
+    dockerfile: Dockerfile
     container_name: nginx
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro

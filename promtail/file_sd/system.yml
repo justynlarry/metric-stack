@@ -6,3 +6,23 @@
     job: syslog
     host: monitoring-vm
     __path__: /var/log/syslog
+
+- targets:
+    - localhost
+  labels:
+    tenant: internal
+    environment: production
+    job: auth
+    host: monitoring-vm
+    __path__: /var/log/auth.log
+
+- targets:
+    - localhost
+  labels:
+    tenant: internal
+    environment: production
+    job: kern
+    host: monitoring_vm
+    __path__: /var/log/kern.log
+
+

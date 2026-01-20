@@ -7,6 +7,44 @@
     role: website
     environment: production
 
+
+# Client Websites
+
+# Client-A
+- targets:
+    - http://192.168.0.137:8080
+  labels:
+    tenant: Client-A
+    instance: Heimdall
+    role: website
+    environment: production
+
+- targets:
+    - http://192.168.0.36:9090
+  labels:
+    tenant: Client-A
+    instance: prometheus-mon-stack
+    role: website
+    environment: production
+
+# Client-B
+- targets:
+    - http://100.75.158.35:3000
+  labels:
+    tenant: Client-B
+    instance: Grafana-Homelab
+    role: monitor
+    environment: production
+
+- targets:
+    - http://www.jlarrymortgages.com
+  labels:
+    tenant: Client-B
+    instance: mortgage-website
+    role: website
+    environment: production
+
+
 # Client Monitoring
 #- targets:
 #    - https://<domain.com>

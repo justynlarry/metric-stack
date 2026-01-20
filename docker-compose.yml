@@ -83,11 +83,12 @@ services:
         reservations:
           memory: 256M
 
-  # Loki - Log aggregation system/"Log Engine"
+# Loki - Log aggregation system/"Log Engine"
   loki:
     image: grafana/loki:latest
     container_name: loki
-    command: -config.file=/etc/loki/local-config.yaml
+    command:
+      - -config.file=/etc/loki/local-config.yaml
     environment:
       - LOKI_S3_ACCESS_KEY=${LOKI_S3_ACCESS_KEY:-minioadmin}
       - LOKI_S3_SECRET_KEY=${LOKI_S3_SECRET_KEY:-minioadmin}
@@ -119,7 +120,7 @@ services:
       - ./promtail/config.yml:/etc/promtail/config.yml:ro
       - ./promtail/file_sd:/etc/promtail/file_sd:ro
       - /var/log:/var/log:ro
-      - nginx-logs:/var/logs/nginx:ro
+      - nginx-logs:/nginx-logs:ro
       - promtail-positions:/var/lib/promtail
     ports:
       - "9080:9080"
@@ -137,7 +138,9 @@ services:
 
   # Nginx - Reverse Proxy and Web Server/"The Gateway"
   nginx:
-    image: nginx:alpine
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     container_name: nginx
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro

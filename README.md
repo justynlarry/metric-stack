@@ -339,7 +339,7 @@ services:
       - ./promtail/config.yml:/etc/promtail/config.yml:ro
       - ./promtail/file_sd:/etc/promtail/file_sd:ro
       - /var/log:/var/log:ro
-      - nginx-logs:/var/logs/nginx:ro
+      - nginx-logs:/nginx-logs:ro
       - promtail-positions:/var/lib/promtail
     ports:
       - "9080:9080"
@@ -874,6 +874,7 @@ Create: /home/stack-user/monitor/promtail/config.yml
 
 yaml
 ```
+  GNU nano 8.4                                                                                                 promtail/config.yml                                                                                                          
 # Promtail server configuration
 server:
   # Web UI and metrics available on port 9080
@@ -894,8 +895,18 @@ scrape_configs:
   - job_name: file_sd
     file_sd_configs:
       - files:
-          - /etc/promtail/file_sd/*.yml
+        - /etc/promtail/file_sd/*.yml
         refresh_interval: 30s
+  - job_name: systemd-journal
+    journal:
+      path: /var/log/journal
+      matches: _SYSTEMD_UNIT
+      max_age: 12h
+      labels:
+        job: systemd-journal
+        host: monitoring-vm
+        tenant: internal
+
 ```
 #### Create: /home/stack-user/monitor/promtail/file_sd/nginx.yml
 

@@ -198,6 +198,7 @@ Thumbs.db
 |       
 |
 ├── nginx/
+│   ├── Dockerfile
 │   ├── nginx.conf (optional)
 │   └── conf.d/
 │       └── grafana.conf

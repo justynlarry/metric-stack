@@ -16,8 +16,8 @@ common:
       endpoint: minio:9000
       bucketnames: loki-data
       # These come from environment variables passed by docker-compose
-      access_key_id: minioadmin
-      secret_access_key: minioadmin
+      access_key_id: loki
+      secret_access_key: Chaos77Trickery**
       s3forcepathstyle: true
       insecure: true # Set to false if using HTTPS
 

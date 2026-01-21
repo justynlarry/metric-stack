@@ -80,11 +80,11 @@ limits_config:
 
 # !!!! THIS MUST BE COMMENTED OUT ON STARTUP AND INITIALIZED AFTER LOGS ARE COLLECTED !!!!
 
-#compactor:
-#  working_directory: /loki/compactor
-#  compaction_interval: 10m
-#  retention_enabled: true
-#  retention_delete_delay: 2h
-#  retention_delete_worker_count: 150
+compactor:
+  working_directory: /loki/compactor
+  compaction_interval: 10m
+  retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 150
   # Required for retention to work
-#  delete_request_store: s3
+  delete_request_store: s3

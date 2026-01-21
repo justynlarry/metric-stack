@@ -241,13 +241,13 @@ Keep ```config.yml.template``` in git, keep ```config.yml``` gitignored
 
 
 Best Practices
-✅ Use dedicated service accounts (not root) for applications
-✅ Keep secrets in .env only
-✅ Keep templates in version control
-✅ Regenerate configs before deployments
-✅ Mount configs read-only in containers
-✅ Enable NTP on your host system
-❌ Never commit .env or generated configs
-❌ Never bake secrets into Docker images
-❌ Never use root MinIO credentials for services
-❌ Never edit generated files manually
+- ✅ Use dedicated service accounts (not root) for applications
+- ✅ Keep secrets in .env only
+- ✅ Keep templates in version control
+- ✅ Regenerate configs before deployments
+- ✅ Mount configs read-only in containers
+- ✅ Enable NTP on your host system
+- ❌ Never commit .env or generated configs
+- ❌ Never bake secrets into Docker images
+- ❌ Never use root MinIO credentials for services
+- ❌ Never edit generated files manually

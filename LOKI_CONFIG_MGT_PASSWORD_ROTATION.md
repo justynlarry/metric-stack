@@ -1,7 +1,7 @@
-Loki Configuration Management & Password Rotation Guide
+# Loki Configuration Management & Password Rotation Guide
 This guide covers setting up automated config generation for Loki using host-side templates and rotating MinIO credentials safely without data loss.
 
-Part 1: Initial Setup - Config Generation Script
+# Part 1: Initial Setup - Config Generation Script
 Project Structure
 Create the following structure:
 ```
@@ -13,13 +13,13 @@ monitor/
 │   └── generate-config.sh        # committed to git
 └── docker-compose.yml
 ```
-Step 1: Update .gitignore
+## Step 1: Update .gitignore
 Add these lines to your .gitignore:
 ```
 .env
 loki/config.yml
 ```
-Step 2: Create the Config Template
+## Step 2: Create the Config Template
 Create loki/config.yml.template with your Loki configuration, using environment variable placeholders:
 yaml
 ```
@@ -38,7 +38,7 @@ common:
 
 ```
 Important: The s3forcepathstyle: true setting is required for MinIO compatibility.
-Step 3: Create the Generation Script
+## Step 3: Create the Generation Script
 Create loki/generate-config.sh:
 ```
 bash#!/bin/bash

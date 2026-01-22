@@ -33,3 +33,5 @@ nginx/logs
 .DS_Store
 Thumbs.db
 
+# Alertmanager config.yml
+alertmanager/config.yml

@@ -171,6 +171,8 @@ Thumbs.db
 │   └── file_sd/
 │       ├── prom_nodes.yml
 │       └── (other exporter configs)
+├──alertmanager/
+|  └── config.yml
 |
 ├──blackbox/
 |  └── blackbox.yml

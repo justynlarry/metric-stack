@@ -42,6 +42,16 @@
     host: sys-monitor
     exporter: node
 
+- targets:
+    - 192.168.0.139:9100
+  labels:
+    tenant: Client-A
+    instance: irin-webserver
+    environment: production
+    role: client
+    host: irin-webserver
+    exporter: node
+
 # Client-B
 
 - targets:

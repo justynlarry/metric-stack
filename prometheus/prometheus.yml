@@ -9,6 +9,14 @@ global:
 rule_files:
   - "/etc/prometheus/rules/*.yml"
 
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets:
+          - alertmanager:9093
+
+
 # List all targets/services that Prometheus will monitor
 
 # Internal Monitor - Monitors the entire stack (loki, grafana, promtail, blackbox, minio)

@@ -421,6 +421,29 @@ nginx:
         limits:
           memory: 128M
 
+ # Alertmanager - Alert Routing and Notifications
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ./alertmanager/config.yml:/etc/alertmanager/config.yml:ro
+      - alertmanager-data:/alertmanager
+    ports:
+      - "9093:9093"
+    networks:
+      - monitoring
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 32M
+
+
 volumes:
   prometheus-data:
     driver: local
@@ -434,7 +457,8 @@ volumes:
     driver: local
   minio-data:
     driver: local
-
+  alertmanager-data:
+    driver: local
 networks:
   monitoring:
     driver: bridge
@@ -454,6 +478,13 @@ global:
 # Load alerting and recording rules
 rule_files:
   - "/etc/prometheus/rules/*.yml"
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+      - targets:
+          - alertmanager:9093
 
 # List all targets/services that Prometheus will monitor
 scrape_configs:

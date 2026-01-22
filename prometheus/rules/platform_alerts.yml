@@ -76,8 +76,8 @@ groups:
 
       # Prometheus Scrape Failures
       - alert: PrometheusScrapeFailures
-        expr: up == 0
-        for: 5m
+        expr: max_over_time(up[10m]) == 0
+        for: 2m
         labels:
           severity: warning
         annotations:

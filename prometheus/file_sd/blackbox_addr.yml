@@ -27,6 +27,14 @@
     role: website
     environment: production
 
+- targets:
+    - https://www.irinobservability.com
+  labels:
+    tenant: Client-A
+    instance: IrinObservability
+    role: website
+    environment: production
+
 # Client-B
 - targets:
     - http://100.75.158.35:3000

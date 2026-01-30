@@ -1,0 +1,10 @@
+# Internal Docker Container Monitor for Monitor Stack
+- targets:
+    - cadvisor:8080
+  labels:
+    tenant: internal
+    instance: monitoring_vm
+    environment: production
+    role: control-plane
+    host: monitoring_vm
+    exporter: cadvisor

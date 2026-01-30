@@ -53,3 +53,9 @@ scrape_configs:
       - target_label: __address__
         replacement: blackbox:9115
 
+  # Cadvisor - Internal Docker Metrics
+  - job_name: 'internal-docker'
+    file_sd_configs:
+      - files:
+        - /etc/prometheus/file_sd/docker-monitor.yml
+        refresh_interval: 30s

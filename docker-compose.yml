@@ -234,12 +234,12 @@ services:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
-      - /varl/lib/docker/:/var/lib/docker:ro
+      - /var/lib/docker/:/var/lib/docker:ro
     networks:
       - monitoring
     restart: unless-stopped
     deploy:
-      resrouces:
+      resources:
         limits:
           memory: 256M
 

@@ -114,9 +114,11 @@ services:
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
+    user: root
     command:
       - "-config.file=/etc/promtail/config.yml"
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - ./promtail/config.yml:/etc/promtail/config.yml:ro
       - ./promtail/file_sd:/etc/promtail/file_sd:ro
       - /var/log:/var/log:ro

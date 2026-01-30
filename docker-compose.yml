@@ -223,6 +223,25 @@ services:
         reservations:
           memory: 32M
 
+# Cadvisor - Docker Container Monitor for Internal Stack
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    privileged: true
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /varl/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitoring
+    restart: unless-stopped
+    deploy:
+      resrouces:
+        limits:
+          memory: 256M
 
 volumes:
   prometheus-data:

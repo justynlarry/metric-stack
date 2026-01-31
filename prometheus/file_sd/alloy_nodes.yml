@@ -1,0 +1,47 @@
+# Client-C
+
+# debRed
+- targets:
+  labels:
+    tenant: Client-C
+    instance: debRed
+    environment: production
+    role: alloy-client
+    host: debRed
+    exporter: alloy
+    collection_method: push
+
+# ubRed
+- targets:
+  labels:
+    tenant: Client-C
+    instance: ubRed
+    environment: production
+    role: alloy-client
+    host: ubRed
+    exporter: alloy
+    collection_method: push
+
+
+# ubRed2
+- targets:
+  labels:
+    tenant: Client-C
+    instance: ubRed2
+    environment: production
+    role: alloy-client
+    host: ubRed2
+    exporter: alloy
+    collection_method: push
+
+
+# Cross-Over Server from Client-A: db-svr02
+#- targets:
+#  labels:
+#    tenant: Client-B
+#    instance: db-svr01
+#    environment: production
+#    role: alloy-client
+#    host: db-svr01
+#    exporter: alloy
+#    collection_method: push

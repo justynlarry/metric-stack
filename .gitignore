@@ -35,3 +35,6 @@ Thumbs.db
 
 # Alertmanager config.yml
 alertmanager/config.yml
+
+# Prometheus Auth Config
+prometheus/web-config.yml

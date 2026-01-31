@@ -9,10 +9,13 @@ services:
       - '--web.enable-lifecycle'
       - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
       - '--storage.tsdb.retention.size=8GB'
+      - '--enable-feature=remote-write-receiver'
+      - '--web-config.file=/etc/prometheus/web-config.yml'
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./prometheus/file_sd:/etc/prometheus/file_sd:ro
       - ./prometheus/rules:/etc/prometheus/rules:ro
+      - ./prometheus/web-config.yml:/etc/prometheus/web-config.yml:ro
       - prometheus-data:/prometheus
     ports:
       - "9090:9090"

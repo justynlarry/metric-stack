@@ -59,3 +59,10 @@ scrape_configs:
       - files:
         - /etc/prometheus/file_sd/docker-monitor.yml
         refresh_interval: 30s
+
+  # Alloy Nodes (metadata only - actual metrics via remote_write)
+  - job_name: 'nodes-alloy'
+    file_sd_configs:
+      - files:
+        - /etc/prometheus/file_sd/alloy_nodes.yml
+    scrape_interval: 60s

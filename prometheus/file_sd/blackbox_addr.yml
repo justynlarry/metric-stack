@@ -36,21 +36,21 @@
     environment: production
 
 # Client-B
-- targets:
-    - http://100.75.158.35:3000
-  labels:
-    tenant: client-b
-    instance: Grafana-Homelab
-    role: monitor
-    environment: production
+#- targets:
+#    - http://
+#  labels:
+#    tenant: client-b
+#    instance: Grafana-Homelab
+#    role: monitor
+#    environment: production
 
-- targets:
-    - http://www.jlarrymortgages.com
-  labels:
-    tenant: client-b
-    instance: mortgage-website
-    role: website
-    environment: production
+#- targets:
+#    - http://www.jlarrymortgages.com
+#  labels:
+#    tenant: client-b
+#    instance: mortgage-website
+#    role: website
+#    environment: production
 
 
 # Client Monitoring

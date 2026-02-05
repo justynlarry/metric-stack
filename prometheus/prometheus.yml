@@ -87,11 +87,11 @@ scrape_configs:
 
 ## Smartmon Exporter for Node Hard Drive Health
 
-  - job_name: 'smartmon'
-    file_sd_configs:
-      - files:
-          - /etc/prometheus/file_sd/smartmon.yml
-        refresh_interval: 30s
+#  - job_name: 'smartmon'
+#    file_sd_configs:
+#      - files:
+#          - /etc/prometheus/file_sd/smartmon.yml
+#        refresh_interval: 30s
 
 ## SmartCTL Exporter for Node Hard Drive SMART Health
 

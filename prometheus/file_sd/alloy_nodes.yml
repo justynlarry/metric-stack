@@ -3,10 +3,12 @@
 # debRed
 - targets:
   labels:
-    tenant: Client-C
+    tenant: client-c
+    cluster: client-c-vm-prod
     instance: debRed
     environment: production
-    role: alloy-client
+    platform: vm
+    role: alloy-test-client
     host: debRed
     exporter: alloy
     collection_method: push
@@ -14,10 +16,12 @@
 # ubRed
 - targets:
   labels:
-    tenant: Client-C
+    tenant: client-c
+    cluster: client-c-vm-prod
     instance: ubRed
     environment: production
-    role: alloy-client
+    platform: vm
+    role: alloy-test-client
     host: ubRed
     exporter: alloy
     collection_method: push
@@ -26,10 +30,12 @@
 # ubRed2
 - targets:
   labels:
-    tenant: Client-C
+    tenant: client-c
+    cluster: client-c-vm-prod
     instance: ubRed2
     environment: production
-    role: alloy-client
+    platform: vm
+    role: alloy-test-client
     host: ubRed2
     exporter: alloy
     collection_method: push

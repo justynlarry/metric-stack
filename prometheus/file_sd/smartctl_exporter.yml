@@ -1,0 +1,73 @@
+## SmartCTL Monitor for HomeLab Servers
+
+- targets:
+    - 100.80.164.59:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Black
+    platform: proxmox
+    host: pveBlack
+    role: proxmox_ve
+    environment: production
+    exporter: smartctl
+
+- targets:
+    - 100.120.214.71:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Red
+    platform: proxmox_ve
+    host: pveRed
+    role: proxmox_ve
+    environment: production
+    exporter: smartctl
+
+- targets:
+    - 100.99.45.94:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Green
+    platform: proxmox_ve
+    host: pveGreen
+    role:  proxmox_ve
+    environment: production
+    exporter: smartctl
+
+- targets:
+    - 192.168.0.216:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Gray
+    platform: metal
+    host: fedGray
+    role: fedora
+    environment: production
+    exporter: smartctl
+
+- targets:
+    - 100.121.87.54:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Blue
+    platform: metal
+    host: debBlue
+    role: debian
+    environment: production
+    exporter: smartctl
+
+- targets:
+    - 100.126.196.70:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Shadow
+    platform: metal
+    host: shadow
+    role: Arch
+    environment: production
+    exporter: smartctl

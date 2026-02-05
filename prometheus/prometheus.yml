@@ -66,3 +66,37 @@ scrape_configs:
       - files:
         - /etc/prometheus/file_sd/alloy_nodes.yml
     scrape_interval: 60s
+
+## Proxmox Node Scraper for standard Prometheus output
+  - job_name: 'proxmox'
+    metrics_path: /pve
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/file_sd/proxmox.yml
+        refresh_interval: 30s
+
+## --- Jobs from Initial Internal Monitoring System ---
+
+## Processor Scraper for all HomeLab Servers, using a vitural Python environment on each
+  - job_name: 'cpu_temp_exporter'
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/file_sd/cpu_temp_exporter.yml
+        refresh_interval: 30s
+
+
+## Smartmon Exporter for Node Hard Drive Health
+
+  - job_name: 'smartmon'
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/file_sd/smartmon.yml
+        refresh_interval: 30s
+
+## SmartCTL Exporter for Node Hard Drive SMART Health
+
+  - job_name: 'smartctl_exporter'
+    file_sd_configs:
+      - files:
+          - /etc/prometheus/file_sd/smartctl_exporter.yml
+        refresh_interval: 30s

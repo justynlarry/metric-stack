@@ -1,0 +1,37 @@
+## SmartMon Exporter for HomeLab Nodes
+
+- targets:
+    - 100.80.164.59:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Black
+    host: pveBlack
+    role: proxmox_ve
+    platform: proxmox_ve
+    environment: production
+    exporter: smartmon
+
+- targets:
+    - 100.120.214.71:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Red
+    host: pveRed
+    role: proxmox_ve
+    platform: proxmox_ve
+    environment: production
+    exporter: smartmon
+
+- targets:
+    - 100.99.45.94:9633
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Green
+    host: pveGreen
+    role: proxmox_ve
+    platform: proxmox_ve
+    environment: production
+    exporter: smartmon

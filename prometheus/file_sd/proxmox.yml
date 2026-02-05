@@ -1,0 +1,13 @@
+## --- Exporter for Proxmox Nodes ---
+
+- targets:
+    - 100.80.164.59:9221
+  labels:
+    tenant: internal
+    cluster: internal-monitoring-prod
+    instance: Black
+    environment: server
+    platform: proxmox_ve
+    host: pveBlack
+    role: proxmox_ve
+    exporter: proxmox

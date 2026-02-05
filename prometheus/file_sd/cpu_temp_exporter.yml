@@ -1,0 +1,37 @@
+## CPU Temperature Exporter for Physicsal Servers Running Proxmox
+
+- targets:
+    - 100.80.164.59:8001
+  labels:
+    tenant: internal
+    cluster: internal-svr-monitor
+    instance: Black
+    environment: server
+    platform: proxmox_ve
+    host: pveBlack
+    role: proxmox_ve
+    exporter: cpu_temp_exporter
+
+- targets:
+    - 100.120.214.71:8001
+  labels:
+    tenant: internal
+    cluster: internal-svr-monitor
+    instance: Red
+    environment: server
+    platform: proxmox_ve
+    host: pveRed
+    role: proxmox_ve
+    exporter: cpu_temp_exporter
+
+- targets:
+    - 100.99.45.94:8001
+  labels:
+    tenant: internal
+    cluster: internal-svr-monitor
+    instance: Green
+    environment: server
+    platform: proxmox_ve
+    host: pveGreen
+    role: proxmox_ve
+    exporter: cpu_temp_exporter

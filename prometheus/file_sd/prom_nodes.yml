@@ -11,6 +11,46 @@
     host: monitoring-vm
     exporter: node
 
+# Internal Server Monitoring - Cluster
+# Prometheus Node Exporter for Bare Metal Servers
+
+- targets:
+    - 100.121.87.54:9100
+  labels:
+    tenant: internal
+    cluster: homelab-physical
+    instance: Blue
+    environment: production
+    platform: metal
+    role: ansible
+    host: debBlue
+    exporter: node
+
+- targets:
+    - 192.168.0.216:9100
+  labels:
+    tenant: internal
+    cluster: homelab-physical
+    instance: Gray
+    environment: production
+    platform: metal
+    host: fedGray
+    role: k3s-server
+    exporter: node
+
+- targets:
+    - 100.126.196.70:9100
+  labels:
+    tenant: internal
+    cluster: homelab-physical
+    instance: Shadow
+    platform: metal
+    environment: production
+    host: shadow
+    role: visual-monitor
+    exporter: node
+
+
 # Client Servers
 
 # Client-A
@@ -87,19 +127,6 @@
     role: webserver
     host: mtg-webserver
     exporter: node
-
-- targets:
-    - 100.121.87.54:9100
-  labels:
-    tenant: client-b
-    cluster: client-b-vm-prod
-    instance: debBlue
-    environment: production
-    platform: metal
-    role: ansible
-    host: debBlue
-    exporter: node
-
 
 
 

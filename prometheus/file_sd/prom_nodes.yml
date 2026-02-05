@@ -3,8 +3,10 @@
     - node-exporter:9100
   labels:
     tenant: internal
+    cluster: internal-monitoring-prod
     instance: monitoring-vm
     environment: production
+    platform: docker
     role: control-plane
     host: monitoring-vm
     exporter: node
@@ -15,40 +17,48 @@
 - targets:
     - 192.168.0.12:9100
   labels:
-    tenant: Client-A
+    tenant: client-a
+    cluster: client-a-vm-prod
     instance: db-svr02
     environment: production
-    role: client
+    platform: vm
+    role: database
     host: db-svr02
     exporter: node
 
 - targets:
     - 192.168.0.172:9100
   labels:
-    tenant: Client-A
+    tenant: client-a
+    cluster: client-a-vm-prod
     instance: db-svr01
     environment: production
-    role: client
+    platform: vm
+    role: database
     host: db-svr01
     exporter: node
 
 - targets:
     - 192.168.0.11:9100
   labels:
-    tenant: Client-A
+    tenant: client-a
+    cluster: client-a-vm-prod
     instance: sys-monitor
     environment: production
-    role: client
+    platform: vm
+    role: monitor
     host: sys-monitor
     exporter: node
 
 - targets:
     - 192.168.0.139:9100
   labels:
-    tenant: Client-A
+    tenant: client-a
+    cluster: client-a-vm-prod
     instance: irin-webserver
     environment: production
-    role: client
+    platform: vm
+    role: webserver
     host: irin-webserver
     exporter: node
 
@@ -57,30 +67,36 @@
 - targets:
     - 192.168.0.121:9100
   labels:
-    tenant: Client-B
+    tenant: client-b
+    cluster: client-b-vm-prod
     instance: file-server
     environment: production
-    role: client
+    platform: vm
+    role: file-server
     host: file-server
     exporter: node
 
 - targets:
     - 192.168.0.120:9100
   labels:
-    tenant: Client-B
+    tenant: client-b
+    cluster: client-b-vm-prod
     instance: mtg-webserver
     environment: production
-    role: client
+    platform: vm
+    role: webserver
     host: mtg-webserver
     exporter: node
 
 - targets:
     - 100.121.87.54:9100
   labels:
-    tenant: Client-B
+    tenant: client-b
+    cluster: client-b-vm-prod
     instance: debBlue
     environment: production
-    role: client
+    platform: metal
+    role: ansible
     host: debBlue
     exporter: node
 

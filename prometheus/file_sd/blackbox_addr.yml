@@ -14,7 +14,7 @@
 - targets:
     - http://192.168.0.137:8080
   labels:
-    tenant: Client-A
+    tenant: client-a
     instance: Heimdall
     role: website
     environment: production
@@ -22,7 +22,7 @@
 - targets:
     - http://192.168.0.36:9090
   labels:
-    tenant: Client-A
+    tenant: client-a
     instance: prometheus-mon-stack
     role: website
     environment: production
@@ -30,7 +30,7 @@
 - targets:
     - https://www.irinobservability.com
   labels:
-    tenant: Client-A
+    tenant: client-a
     instance: IrinObservability
     role: website
     environment: production
@@ -39,7 +39,7 @@
 - targets:
     - http://100.75.158.35:3000
   labels:
-    tenant: Client-B
+    tenant: client-b
     instance: Grafana-Homelab
     role: monitor
     environment: production
@@ -47,7 +47,7 @@
 - targets:
     - http://www.jlarrymortgages.com
   labels:
-    tenant: Client-B
+    tenant: client-b
     instance: mortgage-website
     role: website
     environment: production

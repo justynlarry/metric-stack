@@ -90,17 +90,17 @@
     host: sys-monitor
     exporter: node
 
-- targets:
-    - 192.168.0.139:9100
-  labels:
-    tenant: client-a
-    cluster: client-a-vm-prod
-    instance: irin-webserver
-    environment: production
-    platform: vm
-    role: webserver
-    host: irin-webserver
-    exporter: node
+#- targets:
+#    - 192.168.0.139:9100
+#  labels:
+#    tenant: client-a
+#    cluster: client-a-vm-prod
+#    instance: irin-webserver
+#    environment: production
+#    platform: vm
+#    role: webserver
+#    host: irin-webserver
+#    exporter: node
 
 # Client-B
 

@@ -80,7 +80,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1G
+          memory: 2G
         reservations:
           memory: 256M
 
@@ -90,9 +90,6 @@ services:
     container_name: loki
     command:
       - -config.file=/etc/loki/local-config.yaml
-#    environment:
-#      - LOKI_S3_ACCESS_KEY=${LOKI_S3_ACCESS_KEY:-minioadmin}
-#      - LOKI_S3_SECRET_KEY=${LOKI_S3_SECRET_KEY:-minioadmin}
     volumes:
       - ./loki/config.yml:/etc/loki/local-config.yaml:ro
       - loki-data:/loki

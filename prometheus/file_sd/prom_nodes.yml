@@ -71,3 +71,23 @@
 # (db-svr01, db-svr02, sys-monitor, file-server, shadow, irin-webserver) are
 # gone. All were confirmed unreachable (no route to host) during the audit
 # and have been removed rather than left as permanently-down targets.
+
+# RBI tenant
+- targets:
+    - 192.168.0.128:9100
+  labels:
+    tenant: RBI
+    cluster: rbi-vm-prod
+    instance: rbi-hail01
+    environment: production
+    platform: vm
+    role: rbi-stack
+    host: rbi-hail01
+    exporter: node
+
+# Ledger-dev01 (192.168.0.126) intentionally NOT added here - see report.
+# Its documented IP is stale (actual current LAN IP is 192.168.0.125, DHCP-
+# assigned), and even at the corrected IP, port 9100 times out rather than
+# refusing - node_exporter is confirmed listening via SSH/ss, so this looks
+# like a host-level firewall dropping the connection. Needs operator
+# attention on the host itself, not a config change here.

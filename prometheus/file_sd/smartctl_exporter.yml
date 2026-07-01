@@ -37,37 +37,40 @@
     exporter: smartctl
 
 - targets:
-    - 192.168.0.216:9633
+    - 192.168.10.120:9633
   labels:
-    tenant: internal
-    cluster: internal-monitoring-prod
-    instance: Gray
+    tenant: Irin
+    cluster: irin-production
+    instance: irin-svr01
     platform: metal
-    host: fedGray
-    role: fedora
+    host: irin-svr01
+    role: monitor-svr
     environment: production
     exporter: smartctl
 
 - targets:
-    - 100.121.87.54:9633
+    - 192.168.10.130:9633
   labels:
-    tenant: internal
-    cluster: internal-monitoring-prod
-    instance: Blue
+    tenant: Irin
+    cluster: irin-production
+    instance: irin-svr02
     platform: metal
-    host: debBlue
-    role: debian
+    host: irin-svr02
+    role: monitor-svr
     environment: production
     exporter: smartctl
 
 - targets:
-    - 100.126.196.70:9633
+    - 192.168.10.110:9633
   labels:
-    tenant: internal
-    cluster: internal-monitoring-prod
-    instance: Shadow
+    tenant: Irin
+    cluster: irin-production
+    instance: irin-dev01
     platform: metal
-    host: shadow
-    role: Arch
+    host: irin-dev01
+    role: dev-svr
     environment: production
     exporter: smartctl
+
+# irin-llm01 (192.168.0.182) is unreachable (offline 34+ days per Tailscale) and not
+# part of the current Irin tenant table (CLAUDE.md) - left out of scope for this pass.

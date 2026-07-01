@@ -14,17 +14,6 @@ groups:
           summary: "Prometheus is down"
           description: "The monitoring platform itself is unavailable."
 
-      - alert: LokiDown
-        expr: up{service="loki"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          tenant: internal
-          instance: loki
-        annotations:
-          summary: "Loki is down."
-          description: "Log aggregation is unavailable."
-
       - alert: GrafanaDown
         expr: up{service="grafana"} == 0
         for: 1m
@@ -35,17 +24,6 @@ groups:
         annotations:
           summary: "Grafana is down."
           description: "Dashboards are unavailable."
-
-      - alert: MinIODown
-        expr: up{service="minio"} == 0
-        for: 1m
-        labels:
-          severity: critical
-          tenant: internal
-          instance: minio
-        annotations:
-          summary: "MinIO is down."
-          description: "Object storage is unavailable - Loki cannot store logs."
 
       - alert: NginxDown
         expr: up{service="nginx"} == 0

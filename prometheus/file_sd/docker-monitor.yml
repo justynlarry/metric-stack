@@ -8,3 +8,4 @@
     role: control-plane
     host: monitoring_vm
     exporter: cadvisor
+    service: cadvisor

@@ -1,8 +1,0 @@
-- targets:
-    - localhost
-  labels:
-    tenant: internal
-    job: nginx
-    environment: production
-    host: monitoring_vm
-    __path__: /nginx-logs/*.log

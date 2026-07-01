@@ -1,5 +1,14 @@
 # System Monitoring Stack - Complete Setup Guide
 
+> **2026-07 architecture change:** this stack is now **metrics-only**. Loki,
+> MinIO, and Promtail have been removed entirely - every section below that
+> references them (setup steps, directory tree, embedded compose snippets,
+> `.env` vars) describes the old, retired architecture and is kept here for
+> history, not as current instructions. Hosts already running Irin
+> Observability's own managed Alloy keep shipping logs there; that is the
+> only log path this fleet has. Current components: Prometheus, Grafana,
+> Alertmanager, Blackbox Exporter, Node Exporter, cAdvisor, Nginx.
+
 ## Quick Start (TL;DR)
 ```bash
 # 1. Install Docker (if not already installed)
@@ -9,10 +18,9 @@ cd /home/stack-user/monitor
 # 4. Create .env with your passwords
 # 5. Start the stack
 docker-compose up -d
-# 6. Create MinIO bucket "loki-data"
-# 7. Access Grafana at http://your-ip:3000
+# 6. Access Grafana at http://your-ip:3000
 ```
-## Stack Components: Prometheus + Grafana + Loki + Promtail + Nginx + MinIO
+## Stack Components: Prometheus + Grafana + Nginx + Alertmanager + Blackbox + cAdvisor (metrics-only, no log aggregation)
 ## Phase 1: Install Docker
 ### 1. Add Docker's official GPG key:
 bash

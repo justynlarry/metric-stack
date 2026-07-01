@@ -142,7 +142,7 @@ services:
 
 # Cadvisor - Docker Container Monitor for Internal Stack
   cadvisor:
-    image: ghcr.io/google/cadvisor@sha256:c4c44a8d178a1f3985d4aec9f0876a313cc7833ee07fe1d0d8ec63707ef7d69f
+    image: ghcr.io/google/cadvisor:v0.60.3@sha256:c4c44a8d178a1f3985d4aec9f0876a313cc7833ee07fe1d0d8ec63707ef7d69f
     container_name: cadvisor
     privileged: true
     ports:

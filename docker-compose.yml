@@ -1,7 +1,7 @@
 services:
   # Prometheus - Metrics Collection and Alerting/'The Brain'/
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.9.1
     container_name: prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -30,7 +30,7 @@ services:
 
   # Grafana - Visualization and Dashboards/"The Face"
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:12.4.2
     container_name: grafana
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
@@ -82,7 +82,7 @@ services:
 
   # Blackbox Exporter - Website Monitoring/"The Prober"
   blackbox:
-    image: prom/blackbox-exporter:latest
+    image: prom/blackbox-exporter:v0.28.0
     container_name: blackbox
     volumes:
       - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
@@ -102,7 +102,7 @@ services:
 
   # Node Exporter - Prometheus
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.10.2
     container_name: node-exporter
     command:
       - '--path.rootfs=/host'
@@ -120,7 +120,7 @@ services:
 
   # Alertmanager - Alert Routing and Notifications
   alertmanager:
-    image: prom/alertmanager:latest
+    image: prom/alertmanager:v0.30.1
     container_name: alertmanager
     command:
       - '--config.file=/etc/alertmanager/config.yml'
@@ -142,7 +142,7 @@ services:
 
 # Cadvisor - Docker Container Monitor for Internal Stack
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor@sha256:3de2bd5203120b866d74a9b283b2ffb8ec382fbf9dc321814700c6ea6f44ec57
     container_name: cadvisor
     privileged: true
     ports:

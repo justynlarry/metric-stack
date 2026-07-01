@@ -54,89 +54,12 @@
 # irin-llm01 (192.168.0.182) is unreachable (offline 34+ days per Tailscale) and not
 # part of the current Irin tenant table (CLAUDE.md) - left out of scope for this pass.
 
-#- targets:
-#    - 100.126.196.70:9100
-#  labels:
-#    tenant: internal
-#    cluster: homelab-physical
-#    instance: Shadow
-#    platform: metal
-#    environment: production
-#    host: shadow
-#    role: visual-monitor
-#    exporter: node
-
-
-# Client Servers
-
-# Client-A
-- targets:
-    - 192.168.0.12:9100
-  labels:
-    tenant: client-a
-    cluster: client-a-vm-prod
-    instance: db-svr02
-    environment: production
-    platform: vm
-    role: database
-    host: db-svr02
-    exporter: node
-
-- targets:
-    - 192.168.0.172:9100
-  labels:
-    tenant: client-a
-    cluster: client-a-vm-prod
-    instance: db-svr01
-    environment: production
-    platform: vm
-    role: database
-    host: db-svr01
-    exporter: node
-
-- targets:
-    - 192.168.0.11:9100
-  labels:
-    tenant: client-a
-    cluster: client-a-vm-prod
-    instance: sys-monitor
-    environment: production
-    platform: vm
-    role: monitor
-    host: sys-monitor
-    exporter: node
-
-#- targets:
-#    - 192.168.0.139:9100
-#  labels:
-#    tenant: client-a
-#    cluster: client-a-vm-prod
-#    instance: irin-webserver
-#    environment: production
-#    platform: vm
-#    role: webserver
-#    host: irin-webserver
-#    exporter: node
-
-# Client-B
-
-- targets:
-    - 192.168.0.121:9100
-  labels:
-    tenant: client-b
-    cluster: client-b-vm-prod
-    instance: file-server
-    environment: production
-    platform: vm
-    role: file-server
-    host: file-server
-    exporter: node
-
+# mtg-webserver - Irin tenant (moved off the retired client-b label)
 - targets:
     - 192.168.0.120:9100
   labels:
-    tenant: client-b
-    cluster: client-b-vm-prod
+    tenant: Irin
+    cluster: irin-production
     instance: mtg-webserver
     environment: production
     platform: vm
@@ -144,17 +67,7 @@
     host: mtg-webserver
     exporter: node
 
-
-
-#- targets:
-#    - <ip_address>:9100
-#  labels:
-#    tenant: <client_name>
-    # Used to distinguish between types of servers (production, staging, dev)
-#    environment:
-    # Identifies what the Server Does
-#    role: <server_job>
-    # Name for the server (display)
-#    host:
-    # Label to tell what type of metrics are being sent
-#    exporter: node
+# Retired: the old client-a/client-b/client-c tenant model and its hosts
+# (db-svr01, db-svr02, sys-monitor, file-server, shadow, irin-webserver) are
+# gone. All were confirmed unreachable (no route to host) during the audit
+# and have been removed rather than left as permanently-down targets.

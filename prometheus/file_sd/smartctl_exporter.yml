@@ -1,23 +1,23 @@
 ## SmartCTL Monitor for HomeLab Servers
 
 - targets:
-    - 192.0.2.10:9633
+    - 192.168.0.217:9633
   labels:
-    tenant: internal
-    cluster: internal-monitoring-prod
-    instance: Black
-    platform: proxmox
+    tenant: Phoenix-Lab
+    cluster: phoenix-lab-physical
+    instance: pveBlack
+    platform: proxmox_ve
     host: pveBlack
     role: proxmox_ve
     environment: production
     exporter: smartctl
 
 - targets:
-    - 192.0.2.11:9633
+    - 192.168.0.218:9633
   labels:
-    tenant: internal
-    cluster: internal-monitoring-prod
-    instance: Red
+    tenant: Phoenix-Lab
+    cluster: phoenix-lab-physical
+    instance: pveRed
     platform: proxmox_ve
     host: pveRed
     role: proxmox_ve
@@ -25,14 +25,14 @@
     exporter: smartctl
 
 - targets:
-    - 192.0.2.12:9633
+    - 192.168.0.221:9633
   labels:
-    tenant: internal
-    cluster: internal-monitoring-prod
-    instance: Green
+    tenant: Phoenix-Lab
+    cluster: phoenix-lab-physical
+    instance: pveGreen
     platform: proxmox_ve
     host: pveGreen
-    role:  proxmox_ve
+    role: proxmox_ve
     environment: production
     exporter: smartctl
 

@@ -1,4 +1,4 @@
-FROM nginx:1.29.4-alpine
+FROM nginx:1.31.2-alpine
 
 # Remove the default symlinks that point to stdout/stderr
 RUN rm -f /var/log/nginx/access.log /var/log/nginx/error.log

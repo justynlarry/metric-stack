@@ -25,6 +25,10 @@ groups:
           summary: "Grafana is down."
           description: "Dashboards are unavailable."
 
+      # Inert: no nginx-prometheus-exporter is deployed, so up{service="nginx"}
+      # never has any data and this alert will never fire. Not a bug - the
+      # operator declined to add an exporter for this. Left in place as a
+      # placeholder for if one is ever added.
       - alert: NginxDown
         expr: up{service="nginx"} == 0
         for: 1m

@@ -1,4 +1,5 @@
-# Internal Monitoring
+# Website / endpoint probing targets
+
 - targets:
     - https://www.jlarrymortgages.com
   labels:
@@ -7,57 +8,34 @@
     role: website
     environment: production
 
-
-# Client Websites
-
-# Client-A
-- targets:
-    - http://192.168.0.137:8080
-  labels:
-    tenant: client-a
-    instance: Heimdall
-    role: website
-    environment: production
-
-- targets:
-    - http://192.168.0.36:9090
-  labels:
-    tenant: client-a
-    instance: prometheus-mon-stack
-    role: website
-    environment: production
-
 - targets:
     - https://www.irinobservability.com
   labels:
-    tenant: client-a
-    instance: IrinObservability
+    tenant: Irin
+    instance: irin-website
     role: website
     environment: production
 
-# Client-B
-#- targets:
-#    - http://
-#  labels:
-#    tenant: client-b
-#    instance: Grafana-Homelab
-#    role: monitor
-#    environment: production
+- targets:
+    - https://monitor.irinobservability.com
+  labels:
+    tenant: Irin
+    instance: irin-monitor-primary
+    role: website
+    environment: production
 
-#- targets:
-#    - http://www.jlarrymortgages.com
-#  labels:
-#    tenant: client-b
-#    instance: mortgage-website
-#    role: website
-#    environment: production
+- targets:
+    - https://replica.irinobservability.com
+  labels:
+    tenant: Irin
+    instance: irin-monitor-replica
+    role: website
+    environment: production
 
-
-# Client Monitoring
-#- targets:
-#    - https://<domain.com>
-#  labels:
-#    tenant: <client_name>
-#    environment: production
-#    role: website
-#    instance: <website_type>
+- targets:
+    - https://api.irinobservability.com
+  labels:
+    tenant: Irin
+    instance: irin-api
+    role: website
+    environment: production

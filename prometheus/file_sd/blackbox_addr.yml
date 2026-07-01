@@ -31,11 +31,3 @@
     instance: irin-monitor-replica
     role: website
     environment: production
-
-- targets:
-    - https://api.irinobservability.com
-  labels:
-    tenant: Irin
-    instance: irin-api
-    role: website
-    environment: production

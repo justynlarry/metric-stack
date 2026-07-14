@@ -5,8 +5,8 @@
   labels:
     tenant: internal
     cluster: internal-monitoring-prod
-    instance: Black
-    host: pveBlack
+    instance: proxmox01
+    host: proxmox01
     role: proxmox_ve
     platform: proxmox_ve
     environment: production
@@ -17,8 +17,8 @@
   labels:
     tenant: internal
     cluster: internal-monitoring-prod
-    instance: Red
-    host: pveRed
+    instance: proxmox02
+    host: proxmox02
     role: proxmox_ve
     platform: proxmox_ve
     environment: production
@@ -29,8 +29,8 @@
   labels:
     tenant: internal
     cluster: internal-monitoring-prod
-    instance: Green
-    host: pveGreen
+    instance: proxmox03
+    host: proxmox03
     role: proxmox_ve
     platform: proxmox_ve
     environment: production

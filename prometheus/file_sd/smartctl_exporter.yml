@@ -1,45 +1,45 @@
-## SmartCTL Monitor for HomeLab Servers
+## SmartCTL Monitor for HomeLab and Production Servers
 
 - targets:
-    - 192.168.0.217:9633
+    - 192.0.2.10:9633
   labels:
-    tenant: Phoenix-Lab
-    cluster: phoenix-lab-physical
-    instance: pveBlack
+    tenant: homelab
+    cluster: homelab-physical
+    instance: proxmox01
     platform: proxmox_ve
-    host: pveBlack
+    host: proxmox01
     role: proxmox_ve
     environment: production
     exporter: smartctl
 
 - targets:
-    - 192.168.0.218:9633
+    - 192.0.2.11:9633
   labels:
-    tenant: Phoenix-Lab
-    cluster: phoenix-lab-physical
-    instance: pveRed
+    tenant: homelab
+    cluster: homelab-physical
+    instance: proxmox02
     platform: proxmox_ve
-    host: pveRed
+    host: proxmox02
     role: proxmox_ve
     environment: production
     exporter: smartctl
 
 - targets:
-    - 192.168.0.221:9633
+    - 192.0.2.12:9633
   labels:
-    tenant: Phoenix-Lab
-    cluster: phoenix-lab-physical
-    instance: pveGreen
+    tenant: homelab
+    cluster: homelab-physical
+    instance: proxmox03
     platform: proxmox_ve
-    host: pveGreen
+    host: proxmox03
     role: proxmox_ve
     environment: production
     exporter: smartctl
 
 - targets:
-    - 192.168.10.120:9633
+    - 192.0.2.20:9633
   labels:
-    tenant: Irin
+    tenant: irin
     cluster: irin-production
     instance: irin-svr01
     platform: metal
@@ -49,9 +49,9 @@
     exporter: smartctl
 
 - targets:
-    - 192.168.10.130:9633
+    - 192.0.2.21:9633
   labels:
-    tenant: Irin
+    tenant: irin
     cluster: irin-production
     instance: irin-svr02
     platform: metal
@@ -61,9 +61,9 @@
     exporter: smartctl
 
 - targets:
-    - 192.168.10.110:9633
+    - 192.0.2.22:9633
   labels:
-    tenant: Irin
+    tenant: irin
     cluster: irin-production
     instance: irin-dev01
     platform: metal
@@ -71,6 +71,3 @@
     role: dev-svr
     environment: production
     exporter: smartctl
-
-# irin-llm01 (192.168.0.182) is unreachable (offline 34+ days per Tailscale) and not
-# part of the current Irin tenant table (CLAUDE.md) - left out of scope for this pass.

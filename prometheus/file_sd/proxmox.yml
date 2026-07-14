@@ -1,37 +1,41 @@
-## --- Exporter for Proxmox Nodes ---
+## Exporter for Proxmox Nodes
+## Note: the /pve endpoint reports metrics for the entire Proxmox cluster
+## from whichever node you scrape, so only one node per cluster is active
+## here to avoid triplicated metrics — the other nodes are commented out
+## on purpose, not missing coverage.
 
 - targets:
     - 192.0.2.10:9221
   labels:
-    tenant: Phoenix-Lab
-    cluster: phoenix-lab-physical
-    instance: pveBlack
+    tenant: homelab
+    cluster: homelab-physical
+    instance: proxmox01
     environment: server
     platform: proxmox_ve
-    host: pveBlack
+    host: proxmox01
     role: proxmox_ve
     exporter: proxmox
 
 #- targets:
 #    - 192.0.2.11:9221
 #  labels:
-#    tenant: Phoenix-Lab
-#    cluster: phoenix-lab-physical
-#    instance: pveRed
+#    tenant: homelab
+#    cluster: homelab-physical
+#    instance: proxmox02
 #    environment: server
 #    platform: proxmox_ve
-#    host: pveRed
+#    host: proxmox02
 #    role: proxmox_ve
 #    exporter: proxmox
 
 #- targets:
 #    - 192.0.2.12:9221
 #  labels:
-#    tenant: Phoenix-Lab
-#    cluster: phoenix-lab-physical
-#    instance: pveGreen
+#    tenant: homelab
+#    cluster: homelab-physical
+#    instance: proxmox03
 #    environment: server
 #    platform: proxmox_ve
-#    host: pveGreen
+#    host: proxmox03
 #    role: proxmox_ve
 #    exporter: proxmox

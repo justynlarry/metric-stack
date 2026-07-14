@@ -65,7 +65,7 @@ mv promtail-linux-amd64 /usr/local/bin/promtail
 chmod +x /usr/local/bin/promtail
 
 # Create Config file:
-LOKI_URL="http://192.0.2.13:3100"
+LOKI_URL="http://<loki-host>:3100"
 cat << EOF > /etc/promtail/config.yml
 server:
   http_listen_port: 9080

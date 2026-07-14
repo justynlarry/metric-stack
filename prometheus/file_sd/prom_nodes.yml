@@ -14,11 +14,10 @@
 # Internal Server Monitoring - Cluster
 # Prometheus Node Exporter for Bare Metal Servers
 
-
 - targets:
-    - 192.168.10.120:9100
+    - 192.0.2.20:9100
   labels:
-    tenant: Irin
+    tenant: irin
     cluster: irin-production
     instance: irin-svr01
     environment: production
@@ -28,9 +27,9 @@
     exporter: node
 
 - targets:
-    - 192.168.10.130:9100
+    - 192.0.2.21:9100
   labels:
-    tenant: Irin
+    tenant: irin
     cluster: irin-production
     instance: irin-svr02
     environment: production
@@ -40,9 +39,9 @@
     exporter: node
 
 - targets:
-    - 192.168.10.110:9100
+    - 192.0.2.22:9100
   labels:
-    tenant: Irin
+    tenant: irin
     cluster: irin-production
     instance: irin-dev01
     environment: production
@@ -51,14 +50,10 @@
     role: irin-stack
     exporter: node
 
-# irin-llm01 (192.168.0.182) is unreachable (offline 34+ days per Tailscale) and not
-# part of the current Irin tenant table (CLAUDE.md) - left out of scope for this pass.
-
-# mtg-webserver - Irin tenant (moved off the retired client-b label)
 - targets:
-    - 192.168.0.120:9100
+    - 192.0.2.23:9100
   labels:
-    tenant: Irin
+    tenant: irin
     cluster: irin-production
     instance: mtg-webserver
     environment: production
@@ -67,16 +62,11 @@
     host: mtg-webserver
     exporter: node
 
-# Retired: the old client-a/client-b/client-c tenant model and its hosts
-# (db-svr01, db-svr02, sys-monitor, file-server, shadow, irin-webserver) are
-# gone. All were confirmed unreachable (no route to host) during the audit
-# and have been removed rather than left as permanently-down targets.
-
 # RBI tenant
 - targets:
-    - 192.168.0.128:9100
+    - 192.0.2.30:9100
   labels:
-    tenant: RBI
+    tenant: rbi
     cluster: rbi-vm-prod
     instance: rbi-hail01
     environment: production
@@ -84,10 +74,3 @@
     role: rbi-stack
     host: rbi-hail01
     exporter: node
-
-# Ledger-dev01 (192.168.0.126) intentionally NOT added here - see report.
-# Its documented IP is stale (actual current LAN IP is 192.168.0.125, DHCP-
-# assigned), and even at the corrected IP, port 9100 times out rather than
-# refusing - node_exporter is confirmed listening via SSH/ss, so this looks
-# like a host-level firewall dropping the connection. Needs operator
-# attention on the host itself, not a config change here.

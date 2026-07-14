@@ -1,37 +1,37 @@
-## CPU Temperature Exporter for Physicsal Servers Running Proxmox
+## CPU Temperature Exporter for Physical Servers Running Proxmox
 
 - targets:
     - 192.0.2.10:8001
   labels:
-    tenant: Phoenix-Lab
-    cluster: phoenix-lab-physical
-    instance: Black
+    tenant: homelab
+    cluster: homelab-physical
+    instance: proxmox01
     environment: server
     platform: proxmox_ve
-    host: pveBlack
+    host: proxmox01
     role: proxmox_ve
     exporter: cpu_temp_exporter
 
 - targets:
     - 192.0.2.11:8001
   labels:
-    tenant: Phoenix-Lab
-    cluster: phoenix-lab-physical
-    instance: Red
+    tenant: homelab
+    cluster: homelab-physical
+    instance: proxmox02
     environment: server
     platform: proxmox_ve
-    host: pveRed
+    host: proxmox02
     role: proxmox_ve
     exporter: cpu_temp_exporter
 
 - targets:
     - 192.0.2.12:8001
   labels:
-    tenant: Phoenix-Lab
-    cluster: phoenix-lab-physical
-    instance: Green
+    tenant: homelab
+    cluster: homelab-physical
+    instance: proxmox03
     environment: server
     platform: proxmox_ve
-    host: pveGreen
+    host: proxmox03
     role: proxmox_ve
     exporter: cpu_temp_exporter

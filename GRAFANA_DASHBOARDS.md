@@ -9,7 +9,6 @@ Complete guide for building production-ready Grafana dashboards for your monitor
 - [Dashboard 2: Client Website/Endpoint Status](#dashboard-2-client-websiteendpoint-status)
 - [Dashboard 3: Alert History & Incident Log](#dashboard-3-alert-history--incident-log)
 - [Dashboard 4: Internal Monitoring Stack Health](#dashboard-4-internal-monitoring-stack-health)
-- [Dashboard 5: Log Explorer](#dashboard-5-log-explorer)
 - [Launch Readiness Checklist](#launch-readiness-checklist)
 
 ---
@@ -19,9 +18,8 @@ Complete guide for building production-ready Grafana dashboards for your monitor
 Before creating dashboards, ensure:
 - ✅ Your monitoring stack is running (`docker-compose ps` shows all services up)
 - ✅ Prometheus is scraping targets successfully (check `http://your-ip:9090/targets`)
-- ✅ Loki is receiving logs (check `http://your-ip:3100/ready`)
-- ✅ Grafana data sources are configured (Prometheus and Loki in Grafana UI)
-- ✅ At least one client server has node_exporter and promtail running
+- ✅ Grafana's Prometheus data source is configured
+- ✅ At least one client server has node_exporter running
 
 ---
 
@@ -71,57 +69,6 @@ Allows users to select which tenant/client to view.
 **Sort:** Alphabetical (asc)
 
 Click **Run query** to verify, then **Apply**.
-
----
-
-### Variable 2: Log Job Selector (For Log Explorer)
-
-Allows filtering logs by job type (syslog, auth, nginx, etc.).
-
-| Setting | Value |
-|---------|-------|
-| **Variable type** | Query |
-| **Name** | `job` |
-| **Label** | Log Source |
-| **Description** | Select log type |
-| **Show on dashboard** | Label and value |
-
-**Query Options:**
-
-| Setting | Value |
-|---------|-------|
-| **Data source** | Loki |
-| **Query type** | Label values |
-| **Stream selector** | `{tenant="$client"}` |
-| **Label** | `job` |
-| **Refresh** | On time range change |
-
-**Selection Options:**
-
-| Setting | Value |
-|---------|-------|
-| **Multi-value** | ☐ Unchecked |
-| **Include All option** | ☑ Checked |
-| **Custom all value** | `.*` |
-
-**Sort:** Alphabetical (asc)
-
----
-
-### Variable 3: Search Term (For Log Explorer)
-
-Free-text search for filtering log lines.
-
-| Setting | Value |
-|---------|-------|
-| **Variable type** | Text box |
-| **Name** | `search_term` |
-| **Label** | Search |
-| **Description** | Search for text in logs (leave blank to see all) |
-| **Show on dashboard** | Label and value |
-| **Default value** | *(leave empty)* |
-
-Click **Apply** to save.
 
 ---
 
@@ -1234,24 +1181,7 @@ up{service="prometheus"}
 
 ---
 
-#### Panel 1.1b: Loki Status
-
-**Visualization:** Stat
-
-**Query:**
-```promql
-up{service="loki"}
-```
-
-**Panel Options:**
-- **Title:** Loki
-- **Description:** Loki log aggregation service status
-
-**Settings:** Same as Prometheus panel
-
----
-
-#### Panel 1.1c: Grafana Status
+#### Panel 1.1b: Grafana Status
 
 **Visualization:** Stat
 
@@ -1267,40 +1197,37 @@ up{service="grafana"}
 
 ---
 
-#### Panel 1.1d: MinIO Status
+#### Panel 1.1c: Blackbox Status
 
 **Visualization:** Stat
 
 **Query:**
 ```promql
-up{service="minio"}
+up{service="blackbox"}
 ```
 
 **Panel Options:**
-- **Title:** MinIO
-- **Description:** MinIO object storage (stores Loki logs)
+- **Title:** Blackbox
+- **Description:** Blackbox exporter (endpoint probing) service status
 
 **Settings:** Same as Prometheus panel
 
 ---
 
-#### Panel 1.1e: Promtail Agents
-
-**Shows:** How many promtail agents are healthy.
+#### Panel 1.1d: Alertmanager Status
 
 **Visualization:** Stat
 
 **Query:**
 ```promql
-count(up{job="promtail"} == 1)
+up{service="alertmanager"}
 ```
 
 **Panel Options:**
-- **Title:** Promtail Agents
-- **Description:** Number of healthy promtail log shippers
+- **Title:** Alertmanager
+- **Description:** Alert routing service status
 
-**Display:**
-- **Show:** Value
+**Settings:** Same as Prometheus panel
 
 ---
 
@@ -1455,135 +1382,6 @@ count(up == 0) OR vector(0)
 
 ---
 
-### ROW 4: Loki Log Ingestion Health
-
-#### Panel 4.1: Loki Ingestion by Client
-
-**Shows:** Log data volume per client in bytes/second.
-
-**Visualization:** Time series
-
-**Data Source:** Loki (not Prometheus)
-
-**Query Type:** Metrics
-
-**Query:**
-```logql
-sum by (tenant) (rate({tenant=~".+"}[5m]))
-```
-
-**Panel Options:**
-- **Title:** Loki Ingestion by Client
-- **Description:** Log ingestion rate per client. Stacked to show total load.
-
-**Standard Options:**
-- **Unit:** Bytes/sec
-- **Decimals:** 2
-
-**Graph Styles:**
-- **Style:** Stacked area
-- **Fill opacity:** 70
-
-**Legend:**
-- **Display:** `{{tenant}}`
-- **Values:** Current, Max
-
----
-
-#### Panel 4.2: Log Rate by Tenant
-
-**Shows:** Log entries per time period by client.
-
-**Visualization:** Bar gauge (horizontal)
-
-**Data Source:** Loki
-
-**Query Type:** Range
-
-**Query:**
-```logql
-sum by (tenant) (count_over_time({tenant=~".+"}[5m]))
-```
-
-**Panel Options:**
-- **Title:** Log Rate by Tenant
-- **Description:** Log entries per 5 minutes by client. High values may indicate verbose logging or errors.
-
-**Standard Options:**
-- **Unit:** Short
-- **Decimals:** 0
-
-**Bar Gauge:**
-- **Orientation:** Horizontal
-- **Display mode:** Gradient
-
-**Thresholds:**
-- **Base:** Green
-- **+Add:** Value `5000` → Yellow
-- **+Add:** Value `10000` → Red
-
----
-
-## Dashboard 5: Log Explorer
-
-**Purpose:** Troubleshooting dashboard for incident investigation.
-
-### Dashboard Settings
-- **Name:** `Log Explorer - [Client Name]`
-- **Tags:** `logs`, `troubleshooting`, `debugging`
-- **Time range:** Last 1 hour (adjustable)
-- **Refresh:** 10s
-- **Variables:** Uses `$client`, `$job`, and `$search_term`
-
----
-
-### Panel 5.1: Log Stream Viewer
-
-**Shows:** Live log stream with filtering and search.
-
-**Visualization:** Logs
-
-**Data Source:** Loki
-
-**Query Type:** Range
-
-**Query (Basic):**
-```logql
-{tenant="$client", job="$job"} |= "$search_term"
-```
-
-**Query (Advanced - if JSON logs):**
-```logql
-{tenant="$client", job="$job"}
-  |= "$search_term"
-  | json
-  | line_format "{{.timestamp}} [{{.level}}] {{.message}}"
-```
-
-**Panel Options:**
-- **Title:** Logs
-- **Description:** Live log stream. Use filters above to narrow down. Click any line for details.
-
-**Logs Display:**
-- **Show time:** Yes
-- **Show labels:** Yes
-- **Show common labels:** No
-- **Wrap lines:** Yes
-- **Prettify JSON:** Yes
-- **Enable log details:** Yes
-
-**Order:**
-- **Sort order:** Time (descending) - newest first
-
-**Deduplication:**
-- **Deduplication:** Signature
-
-**Query Options:**
-- **Show logs volume:** Yes (adds histogram above logs)
-- **Max data points:** 1000
-
----
-
 ## Launch Readiness Checklist
 
 Before deploying to clients, verify all dashboards:
@@ -1655,7 +1453,6 @@ Before deploying to clients, verify all dashboards:
 | **Dashboard 2** | Website Status | External monitoring, SLA reporting |
 | **Dashboard 3** | Alert History | Monthly reports, pattern analysis |
 | **Dashboard 4** | Stack Health | Internal ops, your monitoring |
-| **Dashboard 5** | Log Explorer | Incident troubleshooting |
 
 ---
 
@@ -1712,27 +1509,7 @@ curl 'http://localhost:9090/api/v1/query?query=up'
 
 **Fix:**
 - Delete and recreate variables in correct order
-- Ensure data source is selected correctly (Prometheus vs Loki)
-
-### Logs Not Appearing
-
-**Check:**
-1. Is Loki receiving logs? → `http://your-ip:3100/metrics`
-2. Are promtail agents up? → `http://your-ip:9080/targets`
-3. Do log labels match query `{tenant="$client"}`?
-
-**Fix:**
-```bash
-# Check Loki ingestion
-docker-compose logs loki | grep -i error
-
-# Verify promtail is shipping
-docker-compose logs promtail | tail -20
-
-# Test Loki query directly
-curl -G -s "http://localhost:3100/loki/api/v1/query" \
-  --data-urlencode 'query={tenant="internal"}' | jq
-```
+- Ensure the Prometheus data source is selected correctly
 
 ### SSL Certificate Panels Empty
 
@@ -1796,17 +1573,10 @@ monitor/
 │       ├── slis.yml                # → Dashboard 1, 2, 3 (Metrics)
 │       ├── alerts.yml              # → Dashboard 3 (Alert History)
 │       └── platform_alerts.yml     # → Dashboard 4 (Internal Alerts)
-├── loki/
-│   └── config.yml                  # → Dashboard 5 (Logs)
-├── promtail/
-│   └── file_sd/
-│       ├── system.yml              # → Dashboard 5 (System Logs)
-│       └── nginx.yml               # → Dashboard 5 (Nginx Logs)
 └── grafana/
     └── provisioning/
         └── datasources/            # Configure before creating dashboards
-            ├── prometheus.yml
-            └── loki.yml
+            └── prometheus.yml
 ```
 
 ---
@@ -1816,10 +1586,6 @@ monitor/
 ### Prometheus Query Language (PromQL)
 - [Official Documentation](https://prometheus.io/docs/prometheus/latest/querying/basics/)
 - [Query Examples](https://prometheus.io/docs/prometheus/latest/querying/examples/)
-
-### LogQL (Loki Query Language)
-- [Official Documentation](https://grafana.com/docs/loki/latest/logql/)
-- [Log Query Examples](https://grafana.com/docs/loki/latest/logql/log_queries/)
 
 ### Grafana Best Practices
 - [Dashboard Best Practices](https://grafana.com/docs/grafana/latest/best-practices/best-practices-for-creating-dashboards/)
